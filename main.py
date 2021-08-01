@@ -1,4 +1,5 @@
 import base64
+import os
 
 import requests
 from requests.auth import HTTPBasicAuth
@@ -6,8 +7,8 @@ from flask import Flask, request, jsonify
 
 app = Flask(__name__)
 
-CLIENT_ID = "12f045556f09486ba2ca641e0f062fa0"
-CLIENT_SECRET = "db8aa873758144bd8dd5b575412921bf"
+CLIENT_ID = os.getenv("CLIENT_ID")
+CLIENT_SECRET = os.getenv("CLIENT_SECRET")
 
 
 @app.route("/")
