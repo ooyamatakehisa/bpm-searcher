@@ -11,8 +11,8 @@ CLIENT_ID = os.getenv("CLIENT_ID")
 CLIENT_SECRET = os.getenv("CLIENT_SECRET")
 
 
-@app.route("/")
-def hello_world():
+@app.route("/api")
+def search():
     auth = base64.b64encode(str.encode(f"{CLIENT_ID}:{CLIENT_SECRET}"))
     response = requests.post(
         "https://accounts.spotify.com/api/token",
