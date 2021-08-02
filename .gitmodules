@@ -1,0 +1,3 @@
+[submodule "bpm-searcher-frontend"]
+	path = bpm-searcher-frontend
+	url = https://github.com/ooyamatakehisa/bpm-searcher-frontend.git

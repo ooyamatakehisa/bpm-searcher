@@ -2,15 +2,24 @@ import os
 
 import requests
 from requests.auth import HTTPBasicAuth
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, render_template
 from flask_cors import CORS
 
-app = Flask(__name__)
+app = Flask(
+    __name__,
+    static_folder="bpm-searcher-frontend/build/static",
+    template_folder="bpm-searcher-frontend/build",
+)
 CORS(app)
 
 
 CLIENT_ID = os.getenv("CLIENT_ID")
 CLIENT_SECRET = os.getenv("CLIENT_SECRET")
+
+
+@app.route("/")
+def index():
+    return render_template("index.html")
 
 
 @app.route("/api")
