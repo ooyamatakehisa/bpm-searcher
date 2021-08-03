@@ -53,6 +53,7 @@ def search():
         song_name = item["name"]
         artist = item["artists"][0]["name"]
         image_url = item["album"]["images"][0]["url"]
+        album_name = item["album"]["name"]
         preview_url = item["preview_url"]
 
         response = requests.get(
@@ -64,7 +65,7 @@ def search():
         bpm = features["tempo"]
         # key = features["key"]
         ret.append({
-            "song": song_name,
+            "album_name": album_name,
             "artist": artist,
             "bpm": bpm,
             "image_url": image_url,
