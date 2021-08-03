@@ -7,7 +7,8 @@ from flask_cors import CORS
 
 app = Flask(
     __name__,
-    static_folder="bpm-searcher-frontend/build/static",
+    static_url_path="",
+    static_folder="bpm-searcher-frontend/build",
     template_folder="bpm-searcher-frontend/build",
 )
 CORS(app)
