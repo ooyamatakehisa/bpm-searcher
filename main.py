@@ -52,17 +52,23 @@ def search():
         spotify_id = item["id"]
         song_name = item["name"]
         artist = item["artists"][0]["name"]
+        image_url = item["album"]["images"][0]["url"]
+        preview_url = item["preview_url"]
 
         response = requests.get(
             f"https://api.spotify.com/v1/audio-features/{spotify_id}",
             headers={"Authorization": f"Bearer {access_token}"},
         )
 
-        bpm = response.json()["tempo"]
+        features = response.json()
+        bpm = features["tempo"]
+        # key = features["key"]
         ret.append({
             "song": song_name,
             "artist": artist,
             "bpm": bpm,
+            "image_url": image_url,
+            "preview_url": preview_url,
         })
 
     return jsonify(ret)
