@@ -65,6 +65,7 @@ def search():
         bpm = features["tempo"]
         # key = features["key"]
         ret.append({
+            "song_name": song_name,
             "album_name": album_name,
             "artist": artist,
             "bpm": bpm,
