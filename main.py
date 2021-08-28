@@ -62,15 +62,17 @@ def search():
         )
 
         features = response.json()
-        bpm = features["tempo"]
-        # key = features["key"]
         ret.append({
+            "spotify_id": spotify_id,
             "song_name": song_name,
             "album_name": album_name,
             "artist": artist,
-            "bpm": bpm,
+            "bpm": features["tempo"],
+            "key": features["key"],
             "image_url": image_url,
             "preview_url": preview_url,
+            "danceability": features["danceability"],
+            "energy": features["energy"],
         })
 
     return jsonify(ret)
