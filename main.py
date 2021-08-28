@@ -46,9 +46,19 @@ def search():
     items = response.json()["tracks"]["items"]
     if len(items) == 0:
         return "", 400
+    
+    response = requests.get(
+        f"https://api.spotify.com/v1/audio-features",
+        headers={"Authorization": f"Bearer {access_token}"},
+        params={
+            "ids": ",".join(map(lambda item: item["id"], items)),
+        },
+    )
+
+    features = response.json()["audio_features"]
 
     ret = []
-    for item in items:
+    for idx, item in enumerate(items):
         spotify_id = item["id"]
         song_name = item["name"]
         artist = item["artists"][0]["name"]
@@ -56,23 +66,17 @@ def search():
         album_name = item["album"]["name"]
         preview_url = item["preview_url"]
 
-        response = requests.get(
-            f"https://api.spotify.com/v1/audio-features/{spotify_id}",
-            headers={"Authorization": f"Bearer {access_token}"},
-        )
-
-        features = response.json()
         ret.append({
             "spotify_id": spotify_id,
             "song_name": song_name,
             "album_name": album_name,
             "artist": artist,
-            "bpm": features["tempo"],
-            "key": features["key"],
+            "bpm": features[idx]["tempo"],
+            "key": features[idx]["key"],
             "image_url": image_url,
             "preview_url": preview_url,
-            "danceability": features["danceability"],
-            "energy": features["energy"],
+            "danceability": features[idx]["danceability"],
+            "energy": features[idx]["energy"],
         })
 
     return jsonify(ret)
