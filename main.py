@@ -45,10 +45,10 @@ def search():
 
     items = response.json()["tracks"]["items"]
     if len(items) == 0:
-        return "", 400
-    
+        return "", 404
+
     response = requests.get(
-        f"https://api.spotify.com/v1/audio-features",
+        "https://api.spotify.com/v1/audio-features",
         headers={"Authorization": f"Bearer {access_token}"},
         params={
             "ids": ",".join(map(lambda item: item["id"], items)),
