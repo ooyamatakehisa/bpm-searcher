@@ -1,5 +1,7 @@
 import os
+import time
 
+import redis
 import requests
 from requests.auth import HTTPBasicAuth
 from flask import Flask, request, jsonify, render_template
@@ -17,6 +19,21 @@ CORS(app)
 CLIENT_ID = os.getenv("CLIENT_ID")
 CLIENT_SECRET = os.getenv("CLIENT_SECRET")
 
+APP_ENV = os.getenv("APP_ENV")
+
+if APP_ENV == "DEV":
+    kwargs = {
+        "url": os.environ.get('REDIS_URL'),
+        "decode_responses": True,
+    }
+elif APP_ENV == "PRD":
+    kwargs = {
+        "url": os.environ.get('REDIS_TLS_URL'),
+        "decode_responses": True,
+        "ssl_cert_reqs": None,
+    }
+redis = redis.from_url(**kwargs)
+
 
 @app.route("/")
 def index():
@@ -25,13 +42,12 @@ def index():
 
 @app.route("/api")
 def search():
-    response = requests.post(
-        "https://accounts.spotify.com/api/token",
-        headers={"Content-Type": "application/x-www-form-urlencoded"},
-        auth=HTTPBasicAuth(CLIENT_ID, CLIENT_SECRET),
-        data={"grant_type": "client_credentials"},
-    )
-    access_token = response.json()["access_token"]
+    if is_valid_access_token(redis):
+        app.logger.info("valid")
+        access_token = get_spotify_access_token(redis)
+    else:
+        app.logger.info("invalid")
+        access_token = create_spotify_access_token(redis)
 
     query = request.args.get("search")
     response = requests.get(
@@ -80,3 +96,28 @@ def search():
         })
 
     return jsonify(ret)
+
+
+def create_spotify_access_token(redis):
+    response = requests.post(
+        "https://accounts.spotify.com/api/token",
+        headers={"Content-Type": "application/x-www-form-urlencoded"},
+        auth=HTTPBasicAuth(CLIENT_ID, CLIENT_SECRET),
+        data={"grant_type": "client_credentials"},
+    )
+    access_token = response.json()["access_token"]
+
+    # spotify access token will expire after 1 hour and set ttl to 50 minutes
+    ttl = time.time() + 60 * 50
+    dict_ = {"access_token": access_token, "ttl": ttl}
+    redis.hmset("access_token", dict_)
+    return access_token
+
+
+def is_valid_access_token(redis):
+    exists = redis.exists("access_token")
+    return exists and float(redis.hget("access_token", "ttl")) > time.time()
+
+
+def get_spotify_access_token(redis):
+    return redis.hget("access_token", "access_token")

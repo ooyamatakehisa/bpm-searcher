@@ -16,6 +16,7 @@ services:
       CLIENT_ID: ${CLIENT_ID}
       CLIENT_SECRET: ${CLIENT_SECRET}
       APP_ENV: DEV
+      REDIS_URL: redis://@redis:6379/0
     depends_on:
       - mysql
 
@@ -30,3 +31,10 @@ services:
       MYSQL_ROOT_PASSWORD: ${MYSQL_PASSWORD}
       MYSQL_ALLOW_EMPTY_PASSWORD: ${MYSQL_ALLOW_EMPTY_PASSWORD}
       MYSQL_DATABASE: ${MYSQL_DATABASE}
+    
+  redis:
+    image: redis:latest
+    ports:
+      - "6379:6379"
+    volumes:
+      - "./docker/redis:/var/lib/redis"
