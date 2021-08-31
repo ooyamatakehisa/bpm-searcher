@@ -98,6 +98,57 @@ def search():
     return jsonify(ret)
 
 
+@app.route("/api/ranking")
+def ranking():
+    if is_valid_access_token(redis):
+        app.logger.info("valid")
+        access_token = get_spotify_access_token(redis)
+    else:
+        app.logger.info("invalid")
+        access_token = create_spotify_access_token(redis)
+
+    global_charts_id = "37i9dQZEVXbMDoHDwVN2tF"
+    response = requests.get(
+        f"https://api.spotify.com/v1/playlists/{global_charts_id}",
+        headers={"Authorization": f"Bearer {access_token}"},
+    )
+    items = response.json()["tracks"]["items"]
+
+    response = requests.get(
+        "https://api.spotify.com/v1/audio-features",
+        headers={"Authorization": f"Bearer {access_token}"},
+        params={
+            "ids": ",".join(map(lambda item: item["track"]["id"], items)),
+        },
+    )
+
+    features = response.json()["audio_features"]
+
+    ret = []
+    for idx, item in enumerate(items):
+        spotify_id = item["track"]["id"]
+        song_name = item["track"]["name"]
+        artist = item["track"]["artists"][0]["name"]
+        image_url = item["track"]["album"]["images"][0]["url"]
+        album_name = item["track"]["album"]["name"]
+        preview_url = item["track"]["preview_url"]
+
+        ret.append({
+            "spotify_id": spotify_id,
+            "song_name": song_name,
+            "album_name": album_name,
+            "artist": artist,
+            "bpm": features[idx]["tempo"],
+            "key": features[idx]["key"],
+            "image_url": image_url,
+            "preview_url": preview_url,
+            "danceability": features[idx]["danceability"],
+            "energy": features[idx]["energy"],
+        })
+
+    return jsonify(ret)
+
+
 def create_spotify_access_token(redis):
     response = requests.post(
         "https://accounts.spotify.com/api/token",
