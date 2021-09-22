@@ -1,6 +1,7 @@
 import time
 
 from injector import inject
+from logging import Logger
 import requests
 from requests.auth import HTTPBasicAuth
 
@@ -14,10 +15,12 @@ class TrackInteractor(TrackUsecase):
     def __init__(
         self,
         envs: Envs,
-        access_token_repository: AccessTokenRepository
+        access_token_repository: AccessTokenRepository,
+        logger: Logger,
     ) -> None:
         self.envs = envs
         self.access_token_repository = access_token_repository
+        self.logger = logger
 
     def get_tracks(self, query: str) -> list:
         if self.access_token_repository.exist():
