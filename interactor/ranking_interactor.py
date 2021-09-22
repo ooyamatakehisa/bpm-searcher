@@ -58,6 +58,11 @@ class RankingInteractor(RankingUsecase):
             f"https://api.spotify.com/v1/playlists/{global_charts_id}",
             headers={"Authorization": f"Bearer {access_token}"},
         )
+
+        if response.status_code != requests.codes.ok:
+            self.logger.error(response.json())
+            raise RuntimeError("cannot fetch ranking correctly")
+
         items = response.json()["tracks"]["items"]
 
         response = requests.get(
@@ -67,6 +72,10 @@ class RankingInteractor(RankingUsecase):
                 "ids": ",".join(map(lambda item: item["track"]["id"], items)),
             },
         )
+
+        if response.status_code != requests.codes.ok:
+            self.logger.error(response.json())
+            raise RuntimeError("cannot fetch ranking feature correctly")
 
         features = response.json()["audio_features"]
 
@@ -105,6 +114,11 @@ class RankingInteractor(RankingUsecase):
             auth=HTTPBasicAuth(self.env.CLIENT_ID, self.env.CLIENT_SECRET),
             data={"grant_type": "client_credentials"},
         )
+
+        if response.status_code != requests.codes.ok:
+            self.logger.error(response.json())
+            raise RuntimeError("cannot fetch access_token correctly")
+
         access_token = response.json()["access_token"]
 
         # spotify access token will expire after 1 hour and set ttl to 50 minutes
