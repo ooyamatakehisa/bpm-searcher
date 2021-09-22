@@ -16,7 +16,7 @@ class Router:
         ranking_controller: RankingController,
     ) -> None:
         self.app = app
-        self.version = ""
+        self.version = "v1"
         self.url_prefix = f"/api/{self.version}"
 
         self.index_controller = index_controller
@@ -29,8 +29,7 @@ class Router:
             view_func=self.index_controller.get_index
         )
         self.app.add_url_rule(
-            rule=f"{self.url_prefix}",
-            # rule=f"{self.url_prefix}/track",
+            rule=f"{self.url_prefix}/track",
             view_func=self.track_controller.get_tracks
         )
         self.app.add_url_rule(
