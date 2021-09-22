@@ -25,9 +25,9 @@ class TrackInteractor(TrackUsecase):
 
             # check if access token is expired
             if access_token_ttl > time.time():
-                access_token = self._create_spotify_access_token()
-            else:
                 access_token = self.access_token_repository.get()
+            else:
+                access_token = self._create_spotify_access_token()
 
         else:
             access_token = self._create_spotify_access_token()
