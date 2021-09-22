@@ -1,6 +1,7 @@
 import time
 
 from injector import inject
+from logging import Logger
 import requests
 from requests.auth import HTTPBasicAuth
 
@@ -14,10 +15,12 @@ class TrackInteractor(TrackUsecase):
     def __init__(
         self,
         envs: Envs,
-        access_token_repository: AccessTokenRepository
+        access_token_repository: AccessTokenRepository,
+        logger: Logger,
     ) -> None:
         self.envs = envs
         self.access_token_repository = access_token_repository
+        self.logger = logger
 
     def get_tracks(self, query: str) -> list:
         if self.access_token_repository.exist():
@@ -40,6 +43,11 @@ class TrackInteractor(TrackUsecase):
                 "q": query,
             },
         )
+
+        if response.status_code != requests.codes.ok:
+            self.logger.error(response.json())
+            raise RuntimeError("cannot fetch search results correctly")
+
         items = response.json()["tracks"]["items"]
         if len(items) == 0:
             return []
@@ -51,6 +59,10 @@ class TrackInteractor(TrackUsecase):
                 "ids": ",".join(map(lambda item: item["id"], items)),
             },
         )
+
+        if response.status_code != requests.codes.ok:
+            self.logger.error(response.json())
+            raise RuntimeError("cannot fetch search result features correctly")
 
         features = response.json()["audio_features"]
 
@@ -86,6 +98,11 @@ class TrackInteractor(TrackUsecase):
             auth=HTTPBasicAuth(self.envs.CLIENT_ID, self.envs.CLIENT_SECRET),
             data={"grant_type": "client_credentials"},
         )
+
+        if response.status_code != requests.codes.ok:
+            self.logger.error(response.json())
+            raise RuntimeError("cannot fetch access_token correctly")
+
         access_token = response.json()["access_token"]
 
         # spotify access token will expire after 1 hour and set ttl to 50 minutes

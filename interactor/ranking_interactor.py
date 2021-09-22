@@ -1,6 +1,7 @@
 import time
 
 from injector import inject
+from logging import Logger
 import requests
 from requests.auth import HTTPBasicAuth
 
@@ -16,11 +17,13 @@ class RankingInteractor(RankingUsecase):
         self,
         env: Envs,
         access_token_repository: AccessTokenRepository,
-        ranking_repository: RankingRepository
+        ranking_repository: RankingRepository,
+        logger: Logger,
     ) -> None:
         self.env = env
         self.access_token_repository = access_token_repository
         self.ranking_repository = ranking_repository
+        self.logger = logger
 
     def get_ranking(self) -> list:
         if self.ranking_repository.exist():
@@ -55,6 +58,11 @@ class RankingInteractor(RankingUsecase):
             f"https://api.spotify.com/v1/playlists/{global_charts_id}",
             headers={"Authorization": f"Bearer {access_token}"},
         )
+
+        if response.status_code != requests.codes.ok:
+            self.logger.error(response.json())
+            raise RuntimeError("cannot fetch ranking correctly")
+
         items = response.json()["tracks"]["items"]
 
         response = requests.get(
@@ -64,6 +72,10 @@ class RankingInteractor(RankingUsecase):
                 "ids": ",".join(map(lambda item: item["track"]["id"], items)),
             },
         )
+
+        if response.status_code != requests.codes.ok:
+            self.logger.error(response.json())
+            raise RuntimeError("cannot fetch ranking feature correctly")
 
         features = response.json()["audio_features"]
 
@@ -102,6 +114,11 @@ class RankingInteractor(RankingUsecase):
             auth=HTTPBasicAuth(self.env.CLIENT_ID, self.env.CLIENT_SECRET),
             data={"grant_type": "client_credentials"},
         )
+
+        if response.status_code != requests.codes.ok:
+            self.logger.error(response.json())
+            raise RuntimeError("cannot fetch access_token correctly")
+
         access_token = response.json()["access_token"]
 
         # spotify access token will expire after 1 hour and set ttl to 50 minutes
