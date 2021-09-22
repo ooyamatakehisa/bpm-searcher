@@ -1,6 +1,7 @@
 import time
 
 from injector import inject
+from logging import Logger
 import requests
 from requests.auth import HTTPBasicAuth
 
@@ -16,11 +17,13 @@ class RankingInteractor(RankingUsecase):
         self,
         env: Envs,
         access_token_repository: AccessTokenRepository,
-        ranking_repository: RankingRepository
+        ranking_repository: RankingRepository,
+        logger: Logger,
     ) -> None:
         self.env = env
         self.access_token_repository = access_token_repository
         self.ranking_repository = ranking_repository
+        self.logger = logger
 
     def get_ranking(self) -> list:
         if self.ranking_repository.exist():
