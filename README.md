@@ -7,7 +7,7 @@ This repository also offers simple Spotify chart API which shows the charts in h
 You can get this chart information in JSON as the following example.
 The first element of the array represents the top of the ranking.
 ```
-GET https://bpm-searcher.herokuapp.com/api/ranking
+GET https://bpm-searcher.herokuapp.com/api/v1/ranking
 ```
 
 ```json
