@@ -1,8 +1,9 @@
 import os
 
-from injector import Injector, Module
 from flask import Flask
 from flask_cors import CORS
+from injector import Injector, Module
+from logging import Logger
 import redis
 from redis import Redis
 
@@ -46,6 +47,7 @@ redis = redis.from_url(**kwargs)
 class DI(Module):
     def configure(self, binder):
         binder.bind(Flask, to=app)
+        binder.bind(Logger, to=app.logger)
         # binder.bind(Envs, to=envs)
         binder.bind(Redis, to=redis)
         binder.bind(AccessTokenRepository, to=AccessTokenRepositoryImpl)
