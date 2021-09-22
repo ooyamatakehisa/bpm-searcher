@@ -1,12 +1,22 @@
-import json
 import os
-import time
 
-import redis
-import requests
-from requests.auth import HTTPBasicAuth
-from flask import Flask, request, jsonify, render_template
+from injector import Injector, Module
+from flask import Flask
 from flask_cors import CORS
+import redis
+from redis import Redis
+
+from envs import Envs
+from interface.repository.access_token_repository import AccessTokenRepository
+from interface.repository.ranking_repository import RankingRepository
+from interface.usecase.track_usecase import TrackUsecase
+from interface.usecase.ranking_usecase import RankingUsecase
+from interactor.track_interactor import TrackInteractor
+from interactor.ranking_interactor import RankingInteractor
+from persistence.access_token import AccessTokenRepositoryImpl
+from persistence.ranking import RankingRepositoryImpl
+from router import Router
+
 
 app = Flask(
     __name__,
@@ -16,188 +26,34 @@ app = Flask(
 )
 CORS(app)
 
+envs = Envs()
 
-CLIENT_ID = os.getenv("CLIENT_ID")
-CLIENT_SECRET = os.getenv("CLIENT_SECRET")
-
-APP_ENV = os.getenv("APP_ENV")
-
-if APP_ENV == "DEV":
+if envs.APP_ENV == "DEV":
     kwargs = {
         "url": os.environ.get('REDIS_URL'),
         "decode_responses": True,
     }
-elif APP_ENV == "PRD":
+elif envs.APP_ENV == "PRD":
     kwargs = {
         "url": os.environ.get('REDIS_TLS_URL'),
         "decode_responses": True,
         "ssl_cert_reqs": None,
     }
+
 redis = redis.from_url(**kwargs)
 
 
-@app.route("/")
-def index():
-    return render_template("index.html")
+class DI(Module):
+    def configure(self, binder):
+        binder.bind(Flask, to=app)
+        # binder.bind(Envs, to=envs)
+        binder.bind(Redis, to=redis)
+        binder.bind(AccessTokenRepository, to=AccessTokenRepositoryImpl)
+        binder.bind(RankingRepository, to=RankingRepositoryImpl)
+        binder.bind(RankingUsecase, to=RankingInteractor)
+        binder.bind(TrackUsecase, to=TrackInteractor)
 
 
-@app.route("/api")
-def search():
-    if is_valid_access_token(redis):
-        app.logger.info("valid")
-        access_token = get_spotify_access_token(redis)
-    else:
-        app.logger.info("invalid")
-        access_token = create_spotify_access_token(redis)
-
-    query = request.args.get("search")
-    response = requests.get(
-        "https://api.spotify.com/v1/search",
-        headers={"Authorization": f"Bearer {access_token}"},
-        params={
-            "type": "track",
-            "q": query,
-        },
-    )
-
-    items = response.json()["tracks"]["items"]
-    if len(items) == 0:
-        return "", 404
-
-    response = requests.get(
-        "https://api.spotify.com/v1/audio-features",
-        headers={"Authorization": f"Bearer {access_token}"},
-        params={
-            "ids": ",".join(map(lambda item: item["id"], items)),
-        },
-    )
-
-    features = response.json()["audio_features"]
-
-    ret = []
-    for idx, item in enumerate(items):
-        spotify_id = item["id"]
-        song_name = item["name"]
-        artist = item["artists"][0]["name"]
-        image_url = item["album"]["images"][0]["url"]
-        album_name = item["album"]["name"]
-        preview_url = item["preview_url"]
-
-        ret.append({
-            "spotify_id": spotify_id,
-            "song_name": song_name,
-            "album_name": album_name,
-            "artist": artist,
-            "bpm": features[idx]["tempo"],
-            "key": features[idx]["key"],
-            "mode": features[idx]["mode"],
-            "image_url": image_url,
-            "preview_url": preview_url,
-            "danceability": features[idx]["danceability"],
-            "energy": features[idx]["energy"],
-        })
-
-    return jsonify(ret)
-
-
-@app.route("/api/ranking")
-def ranking():
-    if is_valid_ranking(redis):
-        app.logger.info("valid")
-        ranking = get_ranking(redis)
-    else:
-        app.logger.info("invalid")
-        ranking = create_ranking(redis)
-
-    return jsonify(ranking)
-
-
-def create_spotify_access_token(redis):
-    response = requests.post(
-        "https://accounts.spotify.com/api/token",
-        headers={"Content-Type": "application/x-www-form-urlencoded"},
-        auth=HTTPBasicAuth(CLIENT_ID, CLIENT_SECRET),
-        data={"grant_type": "client_credentials"},
-    )
-    access_token = response.json()["access_token"]
-
-    # spotify access token will expire after 1 hour and set ttl to 50 minutes
-    ttl = time.time() + 60 * 50
-    dict_ = {"access_token": access_token, "ttl": ttl}
-    redis.hmset("access_token", dict_)
-    return access_token
-
-
-def is_valid_access_token(redis):
-    exists = redis.exists("access_token")
-    return exists and float(redis.hget("access_token", "ttl")) > time.time()
-
-
-def get_spotify_access_token(redis):
-    return redis.hget("access_token", "access_token")
-
-
-def create_ranking(redis):
-    if is_valid_access_token(redis):
-        app.logger.info("valid")
-        access_token = get_spotify_access_token(redis)
-    else:
-        app.logger.info("invalid")
-        access_token = create_spotify_access_token(redis)
-
-    global_charts_id = "37i9dQZEVXbMDoHDwVN2tF"
-    response = requests.get(
-        f"https://api.spotify.com/v1/playlists/{global_charts_id}",
-        headers={"Authorization": f"Bearer {access_token}"},
-    )
-    items = response.json()["tracks"]["items"]
-
-    response = requests.get(
-        "https://api.spotify.com/v1/audio-features",
-        headers={"Authorization": f"Bearer {access_token}"},
-        params={
-            "ids": ",".join(map(lambda item: item["track"]["id"], items)),
-        },
-    )
-
-    features = response.json()["audio_features"]
-
-    ranking = []
-    for idx, item in enumerate(items):
-        spotify_id = item["track"]["id"]
-        song_name = item["track"]["name"]
-        artist = item["track"]["artists"][0]["name"]
-        image_url = item["track"]["album"]["images"][0]["url"]
-        album_name = item["track"]["album"]["name"]
-        preview_url = item["track"]["preview_url"]
-
-        ranking.append({
-            "spotify_id": spotify_id,
-            "song_name": song_name,
-            "album_name": album_name,
-            "artist": artist,
-            "bpm": features[idx]["tempo"],
-            "key": features[idx]["key"],
-            "mode": features[idx]["mode"],
-            "image_url": image_url,
-            "preview_url": preview_url,
-            "danceability": features[idx]["danceability"],
-            "energy": features[idx]["energy"],
-        })
-
-    ranking_str = json.dumps(ranking)
-
-    # expire cache after 6 hours
-    ttl = time.time() + 60 * 60 * 6
-    dict_ = {"ranking": ranking_str, "ttl": ttl}
-    redis.hmset("ranking", dict_)
-    return ranking
-
-
-def is_valid_ranking(redis):
-    exists = redis.exists("ranking")
-    return exists and float(redis.hget("ranking", "ttl")) > time.time()
-
-
-def get_ranking(redis):
-    return json.loads(redis.hget("ranking", "ranking"))
+injector = Injector([DI()])
+router = injector.get(Router)
+router.add_router()
