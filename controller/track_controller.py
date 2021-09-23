@@ -1,9 +1,10 @@
 from flask import request, jsonify, Response
-from injector import inject
+from injector import inject, singleton
 
 from interface.usecase.track_usecase import TrackUsecase
 
 
+@singleton
 class TrackController:
     @inject
     def __init__(self, track_usecase: TrackUsecase):

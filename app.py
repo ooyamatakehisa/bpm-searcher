@@ -48,7 +48,6 @@ class DI(Module):
     def configure(self, binder):
         binder.bind(Flask, to=app)
         binder.bind(Logger, to=app.logger)
-        # binder.bind(Envs, to=envs)
         binder.bind(Redis, to=redis)
         binder.bind(AccessTokenRepository, to=AccessTokenRepositoryImpl)
         binder.bind(RankingRepository, to=RankingRepositoryImpl)

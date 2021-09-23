@@ -1,9 +1,10 @@
-from injector import inject
+from injector import inject, singleton
 from redis import Redis
 
 from interface.repository.access_token_repository import AccessTokenRepository
 
 
+@singleton
 class AccessTokenRepositoryImpl(AccessTokenRepository):
     @inject
     def __init__(self, redis: Redis) -> None:
