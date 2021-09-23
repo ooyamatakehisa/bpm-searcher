@@ -1,6 +1,6 @@
 import time
 
-from injector import inject
+from injector import inject, singleton
 from logging import Logger
 import requests
 from requests.auth import HTTPBasicAuth
@@ -10,6 +10,7 @@ from interface.usecase.track_usecase import TrackUsecase
 from interface.repository.access_token_repository import AccessTokenRepository
 
 
+@singleton
 class TrackInteractor(TrackUsecase):
     @inject
     def __init__(

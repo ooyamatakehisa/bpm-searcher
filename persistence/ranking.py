@@ -1,10 +1,11 @@
-from injector import inject
+from injector import inject, singleton
 import json
 from redis import Redis
 
 from interface.repository.ranking_repository import RankingRepository
 
 
+@singleton
 class RankingRepositoryImpl(RankingRepository):
     @inject
     def __init__(self, redis: Redis) -> None:

@@ -1,4 +1,4 @@
-from injector import inject
+from injector import inject, singleton
 from flask import Flask
 
 from controller.index_controller import IndexController
@@ -6,6 +6,7 @@ from controller.ranking_controller import RankingController
 from controller.track_controller import TrackController
 
 
+@singleton
 class Router:
     @inject
     def __init__(
