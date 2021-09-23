@@ -33,9 +33,11 @@ class RankingInteractor(RankingUsecase):
             if ranking_ttl > time.time():
                 ranking = self.ranking_repository.get()
             else:
+                self.logger.info("ranking is expired and create new one.")
                 ranking = self._create_ranking()
 
         else:
+            self.logger.info("ranking doesn't exist and create new one.")
             ranking = self._create_ranking()
 
         return ranking
@@ -48,9 +50,11 @@ class RankingInteractor(RankingUsecase):
             if access_token_ttl > time.time():
                 access_token = self.access_token_repository.get()
             else:
+                self.logger.info("access_token is expired and create new one.")
                 access_token = self._create_spotify_access_token()
 
         else:
+            self.logger.info("access_token doesn't exist and create new one.")
             access_token = self._create_spotify_access_token()
 
         global_charts_id = "37i9dQZEVXbMDoHDwVN2tF"
@@ -61,7 +65,7 @@ class RankingInteractor(RankingUsecase):
 
         if response.status_code != requests.codes.ok:
             self.logger.error(response.json())
-            raise RuntimeError("cannot fetch ranking correctly")
+            raise RuntimeError("cannot fetch ranking correctly.")
 
         items = response.json()["tracks"]["items"]
 
@@ -75,7 +79,7 @@ class RankingInteractor(RankingUsecase):
 
         if response.status_code != requests.codes.ok:
             self.logger.error(response.json())
-            raise RuntimeError("cannot fetch ranking feature correctly")
+            raise RuntimeError("cannot fetch ranking feature correctly.")
 
         features = response.json()["audio_features"]
 
@@ -117,7 +121,7 @@ class RankingInteractor(RankingUsecase):
 
         if response.status_code != requests.codes.ok:
             self.logger.error(response.json())
-            raise RuntimeError("cannot fetch access_token correctly")
+            raise RuntimeError("cannot fetch access_token correctly.")
 
         access_token = response.json()["access_token"]
 
