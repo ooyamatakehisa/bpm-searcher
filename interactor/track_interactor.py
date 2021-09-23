@@ -30,9 +30,11 @@ class TrackInteractor(TrackUsecase):
             if access_token_ttl > time.time():
                 access_token = self.access_token_repository.get()
             else:
+                self.logger.info("access_token is expired and create new one.")
                 access_token = self._create_spotify_access_token()
 
         else:
+            self.logger.info("access_token doesn't exist and create new one.")
             access_token = self._create_spotify_access_token()
 
         response = requests.get(
@@ -46,10 +48,11 @@ class TrackInteractor(TrackUsecase):
 
         if response.status_code != requests.codes.ok:
             self.logger.error(response.json())
-            raise RuntimeError("cannot fetch search results correctly")
+            raise RuntimeError("cannot fetch search results correctly.")
 
         items = response.json()["tracks"]["items"]
         if len(items) == 0:
+            self.legger.info("no search result for the specified query.")
             return []
 
         response = requests.get(
@@ -62,7 +65,7 @@ class TrackInteractor(TrackUsecase):
 
         if response.status_code != requests.codes.ok:
             self.logger.error(response.json())
-            raise RuntimeError("cannot fetch search result features correctly")
+            raise RuntimeError("cannot fetch search result features correctly.")
 
         features = response.json()["audio_features"]
 
@@ -101,7 +104,7 @@ class TrackInteractor(TrackUsecase):
 
         if response.status_code != requests.codes.ok:
             self.logger.error(response.json())
-            raise RuntimeError("cannot fetch access_token correctly")
+            raise RuntimeError("cannot fetch access_token correctly.")
 
         access_token = response.json()["access_token"]
 
