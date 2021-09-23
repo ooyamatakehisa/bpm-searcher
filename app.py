@@ -10,8 +10,10 @@ from redis import Redis
 from envs import Envs
 from interface.repository.access_token_repository import AccessTokenRepository
 from interface.repository.ranking_repository import RankingRepository
+from interface.usecase.access_token_usecase import AccessTokenUsecase
 from interface.usecase.track_usecase import TrackUsecase
 from interface.usecase.ranking_usecase import RankingUsecase
+from interactor.access_token_interactor import AccessTokenInteractor
 from interactor.track_interactor import TrackInteractor
 from interactor.ranking_interactor import RankingInteractor
 from persistence.access_token import AccessTokenRepositoryImpl
@@ -52,6 +54,7 @@ class DI(Module):
         binder.bind(Redis, to=redis)
         binder.bind(AccessTokenRepository, to=AccessTokenRepositoryImpl)
         binder.bind(RankingRepository, to=RankingRepositoryImpl)
+        binder.bind(AccessTokenUsecase, to=AccessTokenInteractor)
         binder.bind(RankingUsecase, to=RankingInteractor)
         binder.bind(TrackUsecase, to=TrackInteractor)
 
