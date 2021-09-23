@@ -1,6 +1,6 @@
 import time
 
-from injector import inject
+from injector import inject, singleton
 from logging import Logger
 import requests
 from requests.auth import HTTPBasicAuth
@@ -11,6 +11,7 @@ from interface.repository.access_token_repository import AccessTokenRepository
 from interface.repository.ranking_repository import RankingRepository
 
 
+@singleton
 class RankingInteractor(RankingUsecase):
     @inject
     def __init__(
