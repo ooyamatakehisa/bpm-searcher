@@ -39,7 +39,7 @@ class TrackInteractor(TrackUsecase):
 
         items = response.json()["tracks"]["items"]
         if len(items) == 0:
-            self.legger.info("no search result for the specified query.")
+            self.logger.info("no search result for the specified query.")
             return []
 
         response = requests.get(
