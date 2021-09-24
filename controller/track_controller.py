@@ -12,6 +12,9 @@ class TrackController:
 
     def get_tracks(self) -> Response:
         query = request.args.get("search")
+        if query == "":
+            return make_response("no search query", 400)
+
         tracks = self.track_usecase.get_tracks(query)
         if len(tracks) == 0:
             return make_response("no search result for the specified query", 404)
