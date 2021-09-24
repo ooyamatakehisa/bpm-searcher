@@ -98,4 +98,3 @@ class RankingInteractor(RankingUsecase):
         ttl = time.time() + 60 * 60 * 6
         self.ranking_repository.create(ranking, ttl)
         return ranking
-
