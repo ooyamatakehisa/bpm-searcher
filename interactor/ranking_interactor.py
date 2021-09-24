@@ -52,8 +52,7 @@ class RankingInteractor(RankingUsecase):
         )
 
         if response.status_code != requests.codes.ok:
-            self.logger.error(response.json())
-            raise RuntimeError("cannot fetch ranking correctly.")
+            self.logger.error(f"cannot fetch ranking correctly: {response.json()}")
 
         items = response.json()["tracks"]["items"]
 
@@ -66,8 +65,9 @@ class RankingInteractor(RankingUsecase):
         )
 
         if response.status_code != requests.codes.ok:
-            self.logger.error(response.json())
-            raise RuntimeError("cannot fetch ranking feature correctly.")
+            self.logger.error(
+                f"cannot fetch ranking features correctly: {response.json()}"
+            )
 
         features = response.json()["audio_features"]
 

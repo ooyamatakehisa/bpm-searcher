@@ -33,8 +33,9 @@ class TrackInteractor(TrackUsecase):
         )
 
         if response.status_code != requests.codes.ok:
-            self.logger.error(response.json())
-            raise RuntimeError("cannot fetch search results correctly.")
+            self.logger.error(
+                f"cannot fetch search results correctly: {response.json()}"
+            )
 
         items = response.json()["tracks"]["items"]
         if len(items) == 0:
@@ -50,8 +51,9 @@ class TrackInteractor(TrackUsecase):
         )
 
         if response.status_code != requests.codes.ok:
-            self.logger.error(response.json())
-            raise RuntimeError("cannot fetch search result features correctly.")
+            self.logger.error(
+                f"cannot fetch search result features correctly: {response.json()}"
+            )
 
         features = response.json()["audio_features"]
 
