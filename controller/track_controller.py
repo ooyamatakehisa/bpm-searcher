@@ -1,4 +1,4 @@
-from flask import request, jsonify, Response
+from flask import jsonify, make_response, Response, request
 from injector import inject, singleton
 
 from interface.usecase.track_usecase import TrackUsecase
@@ -14,5 +14,5 @@ class TrackController:
         query = request.args.get("search")
         tracks = self.track_usecase.get_tracks(query)
         if len(tracks) == 0:
-            return "", 404
+            return make_response("no search result for the specified query", 404)
         return jsonify(tracks)
