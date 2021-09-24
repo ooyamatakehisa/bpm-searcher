@@ -49,8 +49,7 @@ class AccessTokenInteractor(AccessTokenUsecase):
         )
 
         if response.status_code != requests.codes.ok:
-            self.logger.error(response.json())
-            raise RuntimeError("cannot fetch access_token correctly.")
+            self.logger.error(f"cannot fetch access_token correctly: {response.json()}")
 
         access_token = response.json()["access_token"]
 
