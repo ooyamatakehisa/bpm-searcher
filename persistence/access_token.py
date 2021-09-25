@@ -11,8 +11,8 @@ class AccessTokenRepositoryImpl(AccessTokenRepository):
         self.redis = redis
 
     def create(self, access_token: str, ttl: float) -> None:
-        value = {"access_token": access_token, "ttl": ttl}
-        self.redis.hmset("access_token", value)
+        self.redis.hset("access_token", "access_token", access_token)
+        self.redis.hset("access_token", "ttl", ttl)
 
     def exist(self) -> bool:
         return self.redis.exists("access_token")

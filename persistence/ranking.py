@@ -13,8 +13,8 @@ class RankingRepositoryImpl(RankingRepository):
 
     def create(self, ranking: list, ttl: float) -> None:
         ranking_str = json.dumps(ranking)
-        value = {"ranking": ranking_str, "ttl": ttl}
-        self.redis.hmset("ranking", value)
+        self.redis.hset("ranking", "ranking", ranking_str)
+        self.redis.hset("ranking", "ttl", ttl)
 
     def exist(self) -> bool:
         return self.redis.exists("ranking")
