@@ -2,22 +2,12 @@ import os
 
 from flask import Flask
 from flask_cors import CORS
-from injector import Injector, Module
-from logging import Logger
+from flask_migrate import Migrate
 import redis
 from redis import Redis
 
 from envs import Envs
-from interface.repository.access_token_repository import AccessTokenRepository
-from interface.repository.ranking_repository import RankingRepository
-from interface.usecase.access_token_usecase import AccessTokenUsecase
-from interface.usecase.track_usecase import TrackUsecase
-from interface.usecase.ranking_usecase import RankingUsecase
-from interactor.access_token_interactor import AccessTokenInteractor
-from interactor.track_interactor import TrackInteractor
-from interactor.ranking_interactor import RankingInteractor
-from persistence.access_token import AccessTokenRepositoryImpl
-from persistence.ranking import RankingRepositoryImpl
+from persistence.model import db
 from router import Router
 
 
@@ -57,6 +47,11 @@ class DI(Module):
         binder.bind(RankingUsecase, to=RankingInteractor)
         binder.bind(TrackUsecase, to=TrackInteractor)
 
+app.config["SQLALCHEMY_DATABASE_URI"] = (
+    f"mysql://{envs.MYSQL_USER}:{envs.MYSQL_PASSWORD}@mysql/{envs.MYSQL_DATABASE}"
+)
+db.init_app(app)
+migrate = Migrate(app, db)
 
 injector = Injector([DI()])
 router = injector.get(Router)
