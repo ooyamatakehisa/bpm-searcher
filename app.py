@@ -1,5 +1,6 @@
 import os
 
+import firebase_admin
 from flask import Flask
 from flask_cors import CORS
 from flask_migrate import Migrate
@@ -35,17 +36,14 @@ elif envs.APP_ENV == "PRD":
 
 redis = redis.from_url(**kwargs)
 
-
-class DI(Module):
-    def configure(self, binder):
-        binder.bind(Flask, to=app)
-        binder.bind(Logger, to=app.logger)
-        binder.bind(Redis, to=redis)
-        binder.bind(AccessTokenRepository, to=AccessTokenRepositoryImpl)
-        binder.bind(RankingRepository, to=RankingRepositoryImpl)
-        binder.bind(AccessTokenUsecase, to=AccessTokenInteractor)
-        binder.bind(RankingUsecase, to=RankingInteractor)
-        binder.bind(TrackUsecase, to=TrackInteractor)
+cred = firebase_admin.credentials.Certificate({
+    "type": "service_account",
+    "project_id": envs.FIREBASE_PROJECT_ID,
+    "token_uri": "https://oauth2.googleapis.com/token",
+    "client_email": envs.FIREBASE_CLIENT_EMAIL,
+    "private_key": envs.FIREBASE_PRIVATE_KEY.replace("\\n", "\n"),
+})
+firebase_admin.initialize_app(cred)
 
 app.config["SQLALCHEMY_DATABASE_URI"] = (
     f"mysql://{envs.MYSQL_USER}:{envs.MYSQL_PASSWORD}@mysql/{envs.MYSQL_DATABASE}"

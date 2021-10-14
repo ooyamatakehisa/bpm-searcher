@@ -35,6 +35,9 @@ jobs:
         MYSQL_USER: user
         MYSQL_PASSWORD: password
         MYSQL_DATABASE: bpm-searcher
+        FIREBASE_PROJECT_ID: ${{ secrets.FIREBASE_PROJECT_ID }}
+        FIREBASE_CLIENT_EMAIL: ${{ secrets.FIREBASE_CLIENT_EMAIL }}
+        FIREBASE_PRIVATE_KEY: ${{ secrets.FIREBASE_PRIVATE_KEY }}
         APP_ENV: DEV
       run: |
         python -m unittest discover ./test

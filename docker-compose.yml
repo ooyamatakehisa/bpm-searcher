@@ -17,6 +17,9 @@ services:
       CLIENT_SECRET: ${CLIENT_SECRET}
       APP_ENV: DEV
       REDIS_URL: redis://@redis:6379/0
+      FIREBASE_PROJECT_ID: ${FIREBASE_PROJECT_ID}
+      FIREBASE_CLIENT_EMAIL: ${FIREBASE_CLIENT_EMAIL}
+      FIREBASE_PRIVATE_KEY: ${FIREBASE_PRIVATE_KEY}
     volumes:
       - "./migrations:/app/migrations"
     depends_on:
