@@ -4,9 +4,10 @@ import firebase_admin
 from flask import Flask
 from flask_cors import CORS
 from flask_migrate import Migrate
+from injector import Injector
 import redis
-from redis import Redis
 
+from di import DI
 from envs import Envs
 from persistence.model import db
 from router import Router
@@ -34,7 +35,7 @@ elif envs.APP_ENV == "PRD":
         "ssl_cert_reqs": None,
     }
 
-redis = redis.from_url(**kwargs)
+redis_conn = redis.from_url(**kwargs)
 
 cred = firebase_admin.credentials.Certificate({
     "type": "service_account",
@@ -51,6 +52,6 @@ app.config["SQLALCHEMY_DATABASE_URI"] = (
 db.init_app(app)
 migrate = Migrate(app, db)
 
-injector = Injector([DI()])
+injector = Injector([DI(redis_conn, app, app.logger)])
 router = injector.get(Router)
 router.add_router()
