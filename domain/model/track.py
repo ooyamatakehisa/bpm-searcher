@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from datetime import datetime
 
 
 @dataclass(frozen=True)
@@ -14,3 +15,12 @@ class Track:
     key: int
     mode: int
     preview_url: str
+
+
+@dataclass(frozen=True)
+class PlaylistTrack:
+    id: str
+    order: int
+    track: Track
+    created_at: datetime
+    updated_at: datetime
