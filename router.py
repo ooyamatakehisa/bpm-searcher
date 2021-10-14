@@ -27,13 +27,16 @@ class Router:
     def add_router(self):
         self.app.add_url_rule(
             rule="/",
-            view_func=self.index_controller.get_index
+            view_func=self.index_controller.get_index,
+            methods=["GET"],
         )
         self.app.add_url_rule(
             rule=f"{self.url_prefix}/track",
-            view_func=self.track_controller.get_tracks
+            view_func=self.track_controller.get_tracks,
+            methods=["GET"],
         )
         self.app.add_url_rule(
             rule=f"{self.url_prefix}/ranking",
-            view_func=self.ranking_controller.get_ranking
+            view_func=self.ranking_controller.get_ranking,
+            methods=["GET"],
         )
