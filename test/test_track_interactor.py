@@ -23,7 +23,7 @@ class TestTrackInteractor(unittest.TestCase):
             access_token_repostory,
             logger,
         )
-        self.track_interractor = TrackInteractor(
+        self.track_interactor = TrackInteractor(
             Envs(),
             access_token_usecase,
             logger,
@@ -34,7 +34,7 @@ class TestTrackInteractor(unittest.TestCase):
         """
         The testcase for beat it (micheal jackson).
         """
-        res = self.track_interractor.get_tracks("Beat it")[0]
+        res = self.track_interactor.get_tracks_by_query("Beat it")[0]
         expected = {
             "album_name": "Thriller 25 Super Deluxe Edition",
             "artist": "Michael Jackson",
@@ -59,7 +59,7 @@ class TestTrackInteractor(unittest.TestCase):
         """
         The testcase for no results.
         """
-        res = self.track_interractor.get_tracks("jreoafn rnegneogoe hilb")
+        res = self.track_interactor.get_tracks_by_query("jreoafn rnegneogoe hilb")
         expected = []
         self.assertListEqual(res, expected)
 

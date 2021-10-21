@@ -15,7 +15,7 @@ class TrackController:
         if query == "":
             return make_response("no search query", 400)
 
-        tracks = self.track_usecase.get_tracks(query)
+        tracks = self.track_usecase.get_tracks_by_query(query)
         if len(tracks) == 0:
             return make_response("no search result for the specified query", 404)
         return jsonify(tracks)
