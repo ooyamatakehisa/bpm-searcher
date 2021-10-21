@@ -26,7 +26,7 @@ jobs:
         if [ -f requirements-dev.txt ]; then pip install -r requirements-dev.txt; fi
     - name: Lint with flake8
       run: |
-        flake8 . --count --max-line-length=88 --show-source --statistics
+        flake8 . --exclude=./migrations/ --count --max-line-length=88 --show-source --statistics
 
     - name: Test with unittest
       env:
