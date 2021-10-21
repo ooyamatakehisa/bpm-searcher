@@ -18,7 +18,7 @@ class TestTrackController(unittest.TestCase):
             {"song": "song_name3", "artist": "artist3"},
         ]
         track_interactor = MagicMock()
-        track_interactor.get_tracks = lambda q: expected_track
+        track_interactor.get_tracks_by_query = lambda q: expected_track
         track_controller = TrackController(
             track_usecase=track_interactor
         )
@@ -51,7 +51,7 @@ class TestTrackController(unittest.TestCase):
 
     def test_get_tracks3(self):
         track_interactor = MagicMock()
-        track_interactor.get_tracks = lambda q: []
+        track_interactor.get_tracks_by_query = lambda q: []
         track_controller = TrackController(
             track_usecase=track_interactor
         )

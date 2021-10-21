@@ -5,7 +5,7 @@ from logging import Logger
 import requests
 
 from envs import Envs
-from interface.usecase.access_token_usecase import AccessTokenUsecase
+from interface.repository.access_token_repository import AccessTokenRepository
 from interface.usecase.ranking_usecase import RankingUsecase
 from interface.repository.ranking_repository import RankingRepository
 
@@ -16,12 +16,12 @@ class RankingInteractor(RankingUsecase):
     def __init__(
         self,
         env: Envs,
-        access_token_usecase: AccessTokenUsecase,
+        access_token_repository: AccessTokenRepository,
         ranking_repository: RankingRepository,
         logger: Logger,
     ) -> None:
         self.env = env
-        self.access_token_usecase = access_token_usecase
+        self.access_token_repository = access_token_repository
         self.ranking_repository = ranking_repository
         self.logger = logger
 
@@ -43,7 +43,7 @@ class RankingInteractor(RankingUsecase):
         return ranking
 
     def _create_ranking(self) -> list:
-        access_token = self.access_token_usecase.get_access_token()
+        access_token = self.access_token_repository.get_access_token()
 
         global_charts_id = "37i9dQZEVXbMDoHDwVN2tF"
         response = requests.get(

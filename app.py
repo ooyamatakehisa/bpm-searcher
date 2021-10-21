@@ -1,23 +1,15 @@
 import os
 
+import firebase_admin
 from flask import Flask
 from flask_cors import CORS
-from injector import Injector, Module
-from logging import Logger
+from flask_migrate import Migrate
+from injector import Injector
 import redis
-from redis import Redis
 
+from di import DI
 from envs import Envs
-from interface.repository.access_token_repository import AccessTokenRepository
-from interface.repository.ranking_repository import RankingRepository
-from interface.usecase.access_token_usecase import AccessTokenUsecase
-from interface.usecase.track_usecase import TrackUsecase
-from interface.usecase.ranking_usecase import RankingUsecase
-from interactor.access_token_interactor import AccessTokenInteractor
-from interactor.track_interactor import TrackInteractor
-from interactor.ranking_interactor import RankingInteractor
-from persistence.access_token import AccessTokenRepositoryImpl
-from persistence.ranking import RankingRepositoryImpl
+from persistence.model import db
 from router import Router
 
 
@@ -43,21 +35,23 @@ elif envs.APP_ENV == "PRD":
         "ssl_cert_reqs": None,
     }
 
-redis = redis.from_url(**kwargs)
+redis_conn = redis.from_url(**kwargs)
 
+cred = firebase_admin.credentials.Certificate({
+    "type": "service_account",
+    "project_id": envs.FIREBASE_PROJECT_ID,
+    "token_uri": "https://oauth2.googleapis.com/token",
+    "client_email": envs.FIREBASE_CLIENT_EMAIL,
+    "private_key": envs.FIREBASE_PRIVATE_KEY.replace("\\n", "\n"),
+})
+firebase_admin.initialize_app(cred)
 
-class DI(Module):
-    def configure(self, binder):
-        binder.bind(Flask, to=app)
-        binder.bind(Logger, to=app.logger)
-        binder.bind(Redis, to=redis)
-        binder.bind(AccessTokenRepository, to=AccessTokenRepositoryImpl)
-        binder.bind(RankingRepository, to=RankingRepositoryImpl)
-        binder.bind(AccessTokenUsecase, to=AccessTokenInteractor)
-        binder.bind(RankingUsecase, to=RankingInteractor)
-        binder.bind(TrackUsecase, to=TrackInteractor)
+app.config["SQLALCHEMY_DATABASE_URI"] = (
+    f"mysql://{envs.MYSQL_USER}:{envs.MYSQL_PASSWORD}@mysql/{envs.MYSQL_DATABASE}"
+)
+db.init_app(app)
+migrate = Migrate(app, db)
 
-
-injector = Injector([DI()])
+injector = Injector([DI(redis_conn, app, app.logger)])
 router = injector.get(Router)
 router.add_router()
