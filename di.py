@@ -8,6 +8,7 @@ from redis import Redis
 from interface.repository.access_token_repository import AccessTokenRepository
 from interface.repository.auth_repository import AuthRepository
 from interface.repository.ranking_repository import RankingRepository
+from interface.repository.track_repository import TrackRepository
 from interface.usecase.auth_usecase import AuthUsecase
 from interface.usecase.track_usecase import TrackUsecase
 from interface.usecase.ranking_usecase import RankingUsecase
@@ -18,6 +19,7 @@ from persistence.model import db
 from persistence.access_token import AccessTokenRepositoryImpl
 from persistence.auth import AuthRepositoryImpl
 from persistence.ranking import RankingRepositoryImpl
+from persistence.track import TrackRepositoryImpl
 
 
 class DI(Module):
@@ -37,3 +39,4 @@ class DI(Module):
         binder.bind(AuthUsecase, to=AuthInteractor)
         binder.bind(RankingUsecase, to=RankingInteractor)
         binder.bind(TrackUsecase, to=TrackInteractor)
+        binder.bind(TrackRepository, to=TrackRepositoryImpl)
