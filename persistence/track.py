@@ -1,5 +1,5 @@
 from logging import Logger
-from typing import List
+from typing import List, Optional
 
 from injector import inject, singleton
 import requests
@@ -15,7 +15,11 @@ class TrackRepositoryImpl:
         self.logger = logger
         self.access_token_repository = access_token_repository
 
-    def _get_feature_by_id(self, spotify_id: str, access_token: str = None) -> dict:
+    def _get_feature_by_id(
+        self,
+        spotify_id: str,
+        access_token: str = None
+    ) -> Optional[dict]:
         if access_token is None:
             access_token = self.access_token_repository.get_access_token()
 
@@ -28,6 +32,7 @@ class TrackRepositoryImpl:
             self.logger.error(
                 f"cannot fetch search a result feature correctly: {response.json()}"
             )
+            return None
 
         feature = response.json()
         return feature
@@ -36,7 +41,7 @@ class TrackRepositoryImpl:
         self,
         ids: List[str],
         access_token: str = None,
-    ) -> List[dict]:
+    ) -> Optional[List[dict]]:
         if access_token is None:
             access_token = self.access_token_repository.get_access_token()
 
@@ -52,11 +57,12 @@ class TrackRepositoryImpl:
             self.logger.error(
                 f"cannot fetch search result features correctly: {response.json()}"
             )
+            return None
 
         features = response.json()["audio_features"]
         return features
 
-    def get_track_by_id(self, track_id: str) -> Track:
+    def get_track_by_id(self, track_id: str) -> Optional[Track]:
         spotify_id = track_id
         access_token = self.access_token_repository.get_access_token()
 
@@ -69,9 +75,12 @@ class TrackRepositoryImpl:
             self.logger.error(
                 f"cannot fetch tracks by ids correctly: {response.json()}"
             )
-        track_data = response.json()
+            return None
 
+        track_data = response.json()
         feature = self._get_feature_by_id(spotify_id)
+        if feature is None:
+            return None
 
         return Track(
             spotify_id=track_data["id"],
@@ -87,7 +96,7 @@ class TrackRepositoryImpl:
             energy=feature["energy"],
         )
 
-    def get_tracks_by_ids(self, track_ids: List[str]) -> List[Track]:
+    def get_tracks_by_ids(self, track_ids: List[str]) -> Optional[List[Track]]:
         access_token = self.access_token_repository.get_access_token()
 
         response = requests.get(
@@ -102,9 +111,12 @@ class TrackRepositoryImpl:
             self.logger.error(
                 f"cannot fetch tracks by ids correctly: {response.json()}"
             )
+            return None
 
         items = response.json()["tracks"]
         features = self._get_features_by_ids(track_ids)
+        if features is None:
+            return None
 
         tracks = [
             Track(
@@ -125,7 +137,7 @@ class TrackRepositoryImpl:
 
         return tracks
 
-    def get_tracks_by_query(self, query: str) -> List[Track]:
+    def get_tracks_by_query(self, query: str) -> Optional[List[Track]]:
         access_token = self.access_token_repository.get_access_token()
 
         response = requests.get(
@@ -141,6 +153,7 @@ class TrackRepositoryImpl:
             self.logger.error(
                 f"cannot fetch search results correctly: {response.json()}"
             )
+            return None
 
         items = response.json()["tracks"]["items"]
         if len(items) == 0:
@@ -149,6 +162,8 @@ class TrackRepositoryImpl:
 
         ids = map(lambda item: item["id"], items)
         features = self._get_features_by_ids(ids)
+        if features is None:
+            return None
 
         tracks = [
             Track(
