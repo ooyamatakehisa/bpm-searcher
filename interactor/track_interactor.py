@@ -16,4 +16,4 @@ class TrackInteractor(TrackUsecase):
         self.track_repository = track_repository
 
     def get_tracks_by_query(self, query: str) -> List[Track]:
-        return self.get_tracks_by_query(query)
+        return self.track_repository.get_tracks_by_query(query)
