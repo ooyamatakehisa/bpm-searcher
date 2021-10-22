@@ -47,7 +47,7 @@ cred = firebase_admin.credentials.Certificate({
 firebase_admin.initialize_app(cred)
 
 app.config["SQLALCHEMY_DATABASE_URI"] = (
-    f"mysql://{envs.MYSQL_USER}:{envs.MYSQL_PASSWORD}@mysql/{envs.MYSQL_DATABASE}"
+    f"mysql://{envs.MYSQL_USER}:{envs.MYSQL_PASSWORD}@{envs.MYSQL_ADDR}/{envs.MYSQL_DATABASE}"
 )
 db.init_app(app)
 migrate = Migrate(app, db)
