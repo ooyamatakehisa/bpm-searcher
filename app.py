@@ -49,6 +49,9 @@ firebase_admin.initialize_app(cred)
 app.config["SQLALCHEMY_DATABASE_URI"] = (
     f"mysql://{envs.MYSQL_USER}:{envs.MYSQL_PASSWORD}@{envs.MYSQL_ADDR}/{envs.MYSQL_DATABASE}"
 )
+app.config['SQLALCHEMY_ENGINE_OPTIONS'] = {
+    "pool_recycle": 60,
+}
 db.init_app(app)
 migrate = Migrate(app, db)
 
