@@ -71,3 +71,7 @@ class Router:
             view_func=self.playlist_controller.delete_track,
             methods=["DELETE"],
         )
+
+        @self.app.errorhandler(404)
+        def catch_all(path):
+            return self.index_controller.get_index()
