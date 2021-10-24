@@ -2,9 +2,11 @@ import time
 import unittest
 from unittest import mock
 
+import fakeredis
+
 from envs import Envs
 from interactor.ranking_interactor import RankingInteractor
-from interactor.access_token_interactor import AccessTokenInteractor
+from persistence.access_token import AccessTokenRepositoryImpl
 
 
 class TestRankingInteractor(unittest.TestCase):
@@ -13,17 +15,13 @@ class TestRankingInteractor(unittest.TestCase):
         self.ttl = ttl
 
     def setUp(self) -> None:
-        access_token_repostory = mock.MagicMock()
-        access_token_repostory.create = self.create
-        access_token_repostory.exist = lambda: False
-        access_token_repostory.get = lambda: self.access_token
-        access_token_repostory.get_ttl = lambda: self.ttl
         self.logger = mock.MagicMock()
+        self.redis = fakeredis.FakeRedis(decode_responses=True)
         self.envs = Envs()
-        self.access_token_usecase = AccessTokenInteractor(
-            self.envs,
-            access_token_repostory,
-            self.logger,
+        self.access_token_repository = AccessTokenRepositoryImpl(
+            envs=self.envs,
+            logger=self.logger,
+            redis=self.redis,
         )
         self.ranking_repostory = mock.MagicMock()
         self.ranking_repostory.create = self.create
@@ -42,7 +40,7 @@ class TestRankingInteractor(unittest.TestCase):
 
         ranking_interactor = RankingInteractor(
             self.envs,
-            self.access_token_usecase,
+            self.access_token_repository,
             self.ranking_repostory,
             self.logger,
         )
@@ -63,7 +61,7 @@ class TestRankingInteractor(unittest.TestCase):
 
         ranking_interactor = RankingInteractor(
             self.envs,
-            self.access_token_usecase,
+            self.access_token_repository,
             self.ranking_repostory,
             self.logger,
         )
@@ -79,7 +77,7 @@ class TestRankingInteractor(unittest.TestCase):
 
         ranking_interactor = RankingInteractor(
             self.envs,
-            self.access_token_usecase,
+            self.access_token_repository,
             self.ranking_repostory,
             self.logger,
         )
@@ -100,7 +98,7 @@ class TestRankingInteractor(unittest.TestCase):
 
         ranking_interactor = RankingInteractor(
             self.envs,
-            self.access_token_usecase,
+            self.access_token_repository,
             self.ranking_repostory,
             self.logger,
         )
@@ -116,7 +114,7 @@ class TestRankingInteractor(unittest.TestCase):
 
         ranking_interactor = RankingInteractor(
             self.envs,
-            self.access_token_usecase,
+            self.access_token_repository,
             self.ranking_repostory,
             self.logger,
         )
