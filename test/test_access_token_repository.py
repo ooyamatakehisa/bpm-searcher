@@ -18,7 +18,7 @@ class TestAccessTokenRepository(unittest.TestCase):
             redis=self.redis,
         )
         return super().setUp()
-    
+
     def test_get_access_token1(self) -> None:
         """Testcase where no access token is stored in redis
         """
@@ -57,7 +57,9 @@ class TestAccessTokenRepository(unittest.TestCase):
         ttl = time.time()
         self.redis.hset("access_token", "access_token", expected_access_token)
         self.redis.hset("access_token", "ttl", ttl)
-        actual_access_token = self.access_token_persistence._get_access_token_from_cache()
+        actual_access_token = (
+            self.access_token_persistence._get_access_token_from_cache()
+        )
         self.assertEqual(actual_access_token, expected_access_token)
 
     def test_get_access_token_from_spotify(self) -> None:
@@ -88,7 +90,7 @@ class TestAccessTokenRepository(unittest.TestCase):
         valid = self.access_token_persistence._valid_cache()
         self.assertIs(valid, True)
 
-    def test_valid_cache2(self) -> None:
+    def test_valid_cache3(self) -> None:
         """Testcase where access token is stored in redis and ttl is expired
         """
         access_token = "access_token_test"

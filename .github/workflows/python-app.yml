@@ -32,6 +32,7 @@ jobs:
       env:
         CLIENT_ID: ${{ secrets.CLIENT_ID }}
         CLIENT_SECRET: ${{ secrets.CLIENT_SECRET }}
+        MYSQL_ADDR: addr
         MYSQL_USER: user
         MYSQL_PASSWORD: password
         MYSQL_DATABASE: bpm-searcher

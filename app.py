@@ -47,7 +47,8 @@ cred = firebase_admin.credentials.Certificate({
 firebase_admin.initialize_app(cred)
 
 app.config["SQLALCHEMY_DATABASE_URI"] = (
-    f"mysql://{envs.MYSQL_USER}:{envs.MYSQL_PASSWORD}@{envs.MYSQL_ADDR}/{envs.MYSQL_DATABASE}"
+    f"mysql://{envs.MYSQL_USER}:{envs.MYSQL_PASSWORD}"
+    f"@{envs.MYSQL_ADDR}/{envs.MYSQL_DATABASE}"
 )
 app.config['SQLALCHEMY_ENGINE_OPTIONS'] = {
     "pool_recycle": 60,
