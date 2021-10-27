@@ -1,4 +1,5 @@
 from datetime import datetime
+from logging import Logger
 from typing import List, Optional, Union
 import uuid
 
@@ -16,9 +17,11 @@ class PlaylistInteractor(PlaylistUsecase):
     @inject
     def __init__(
         self,
+        logger: Logger,
         playlist_repository: PlaylistRepository,
         track_repository: TrackRepository,
     ) -> None:
+        self.logger = logger
         self.playlist_repository = playlist_repository
         self.track_repository = track_repository
 
