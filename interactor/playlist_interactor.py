@@ -8,7 +8,6 @@ from domain.model.playlist import Playlist, PlaylistInfo
 from domain.model.track import PlaylistTrack
 from interface.repository.playlist_repository import PlaylistRepository
 from interface.repository.track_repository import TrackRepository
-from interface.usecase.track_usecase import TrackUsecase
 from interface.usecase.playlist_usecase import PlaylistUsecase
 
 
@@ -17,11 +16,9 @@ class PlaylistInteractor(PlaylistUsecase):
     @inject
     def __init__(
         self,
-        track_usecase: TrackUsecase,
         playlist_repository: PlaylistRepository,
         track_repository: TrackRepository,
     ) -> None:
-        self.track_usecase = track_usecase
         self.playlist_repository = playlist_repository
         self.track_repository = track_repository
 
@@ -60,7 +57,6 @@ class PlaylistInteractor(PlaylistUsecase):
             self.logger.info("no playlist_track with the playlist_track_id")
             return None
 
-        playlist = self.playlist_repository.get_playlist(playlist_id)
         playlist = playlist.delete(playlist_track)
         self.playlist_repository.save_playlist(playlist)
 
