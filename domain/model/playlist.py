@@ -29,6 +29,16 @@ class Playlist:
     playlist_tracks: List[PlaylistTrack]
 
     def delete(self, playlist_track: PlaylistTrack) -> Playlist:
+        """Remove the specified playlist_track from this playlist.
+        Playlist has own image_url and this is the same as that of the first track in
+        this playlist.
+
+        Args:
+            playlist_track (PlaylistTrack): playlist_track to remove
+
+        Returns:
+            Playlist: new playlist from which the specified playlist_track is removed
+        """
         playlist_tracks = []
         for playlist_track_ in self.playlist_tracks:
             if playlist_track_.order < playlist_track.order:
@@ -63,6 +73,14 @@ class Playlist:
         return Playlist(playlist_info=playlist_info, playlist_tracks=playlist_tracks)
 
     def add(self, track: Track) -> Playlist:
+        """Add the specifed track to this playlist
+
+        Args:
+            track (Track): Track to add
+
+        Returns:
+            Playlist: new playlist to which new track is added
+        """
         playlist_track = PlaylistTrack(
             id=uuid.uuid4(),
             order=self.playlist_info.num_tracks + 1,
