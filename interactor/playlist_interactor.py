@@ -6,7 +6,6 @@ import uuid
 from injector import inject, singleton
 
 from domain.model.playlist import Playlist, PlaylistInfo
-from domain.model.track import PlaylistTrack
 from interface.repository.playlist_repository import PlaylistRepository
 from interface.repository.track_repository import TrackRepository
 from interface.usecase.playlist_usecase import PlaylistUsecase
@@ -104,14 +103,7 @@ class PlaylistInteractor(PlaylistUsecase):
                 self.logger.info("no track with the spotify id")
                 return None
 
-            playlist_track = PlaylistTrack(
-                id=uuid.uuid4(),
-                order=playlist.playlist_info.num_tracks + 1,
-                track=track,
-                created_at=datetime.utcnow(),
-                updated_at=datetime.utcnow(),
-            )
-            playlist = playlist.add(playlist_track)
+            playlist = playlist.add(track)
             self.playlist_repository.save_playlist(playlist)
 
             return playlist

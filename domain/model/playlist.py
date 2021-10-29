@@ -2,8 +2,9 @@ from __future__ import annotations
 from dataclasses import dataclass
 from datetime import datetime
 from typing import List
+import uuid
 
-from domain.model.track import PlaylistTrack
+from domain.model.track import PlaylistTrack, Track
 
 
 @dataclass(frozen=True)
@@ -61,7 +62,14 @@ class Playlist:
 
         return Playlist(playlist_info=playlist_info, playlist_tracks=playlist_tracks)
 
-    def add(self, playlist_track: PlaylistTrack) -> Playlist:
+    def add(self, track: Track) -> Playlist:
+        playlist_track = PlaylistTrack(
+            id=uuid.uuid4(),
+            order=self.playlist_info.num_tracks + 1,
+            track=track,
+            created_at=datetime.utcnow(),
+            updated_at=datetime.utcnow(),
+        )
         playlist_tracks = self.playlist_tracks + [playlist_track]
 
         playlist_info = PlaylistInfo(
