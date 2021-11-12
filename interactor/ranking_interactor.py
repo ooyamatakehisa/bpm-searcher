@@ -50,11 +50,14 @@ class RankingInteractor(RankingUsecase):
             f"https://api.spotify.com/v1/playlists/{global_charts_id}",
             headers={"Authorization": f"Bearer {access_token}"},
         )
+        body = response.json()
 
         if response.status_code != requests.codes.ok:
-            self.logger.error(f"cannot fetch ranking correctly: {response.json()}")
+            message = f"cannot fetch ranking correctly: {body}"
+            self.logger.error(message)
+            raise RuntimeError(message)
 
-        items = response.json()["tracks"]["items"]
+        items = body["tracks"]["items"]
 
         response = requests.get(
             "https://api.spotify.com/v1/audio-features",
@@ -63,13 +66,14 @@ class RankingInteractor(RankingUsecase):
                 "ids": ",".join(map(lambda item: item["track"]["id"], items)),
             },
         )
+        body = response.json()
 
         if response.status_code != requests.codes.ok:
-            self.logger.error(
-                f"cannot fetch ranking features correctly: {response.json()}"
-            )
+            message = f"cannot fetch ranking features correctly: {body}"
+            self.logger.error(message)
+            raise RuntimeError(message)
 
-        features = response.json()["audio_features"]
+        features = body["audio_features"]
 
         ranking = []
         for idx, item in enumerate(items):
