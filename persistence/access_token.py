@@ -39,11 +39,14 @@ class AccessTokenRepositoryImpl(AccessTokenRepository):
             auth=HTTPBasicAuth(self.envs.CLIENT_ID, self.envs.CLIENT_SECRET),
             data={"grant_type": "client_credentials"},
         )
+        body = response.json()
 
         if response.status_code != requests.codes.ok:
-            self.logger.error(f"cannot fetch access_token correctly: {response.json()}")
+            message = f"cannot fetch access_token correctly: {body}"
+            self.logger.error(message)
+            raise RuntimeError(message)
 
-        access_token = response.json()["access_token"]
+        access_token = body["access_token"]
         return access_token
 
     def _save_cache(self, access_token: str) -> None:

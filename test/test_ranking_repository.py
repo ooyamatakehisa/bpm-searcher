@@ -132,3 +132,7 @@ class TestRankingRepository(unittest.TestCase):
         )
         actual_ttl = self.ranking_persistence.get_ttl()
         self.assertEqual(actual_ttl, expected_ttl)
+
+
+if __name__ == '__main__':
+    unittest.main()

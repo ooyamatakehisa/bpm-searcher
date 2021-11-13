@@ -102,10 +102,10 @@ class PlaylistRepositoryImpl(PlaylistRepository):
                 .filter_by(id=playlist_track_id) \
                 .first()
 
-            spotify_id = playlist_track_data.spotify_id
-            track = self.track_repository.get_track_by_id(spotify_id)
-
             if playlist_track_data is not None:
+                spotify_id = playlist_track_data.spotify_id
+                track = self.track_repository.get_track_by_id(spotify_id)
+
                 return PlaylistTrack(
                     id=playlist_track_data.id,
                     order=playlist_track_data.order,
