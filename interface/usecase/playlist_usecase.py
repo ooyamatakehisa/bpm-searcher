@@ -14,6 +14,7 @@ class PlaylistUsecase(metaclass=ABCMeta):
             desc (str): playlist description
             uid (str): user id
         """
+        pass
 
     @abstractmethod
     def get_playlist_infos(self, uid: str) -> List[PlaylistInfo]:
@@ -80,5 +81,17 @@ class PlaylistUsecase(metaclass=ABCMeta):
         Returns:
             Optional[Union[Playlist, PlaylistInfo]]: Playlist or PlaylistInfo object
                 if it exists, else None.
+        """
+        pass
+
+    @abstractmethod
+    def delete_playlist(self, playlist_id: str) -> Optional[PlaylistInfo]:
+        """Delete the playlist with the specified playlist_id
+
+        Args:
+            playlist_id (str): playlist id
+
+        Returns:
+            Optional[PlaylistInfo]: Playlist object if it exists, else None.
         """
         pass

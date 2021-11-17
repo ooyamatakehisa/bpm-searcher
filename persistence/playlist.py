@@ -240,3 +240,27 @@ class PlaylistRepositoryImpl(PlaylistRepository):
 
         finally:
             self.db.session.close()
+
+    def delete_playlist(self, playlist_id: str) -> None:
+        try:
+            self.db.session.query(PlaylistTrackDataModel) \
+                .filter_by(playlist_id=playlist_id) \
+                .delete()
+
+            self.db.session.query(UserPlaylistDataModel) \
+                .filter_by(playlist_id=playlist_id) \
+                .delete()
+
+            self.db.session.query(PlaylistInfoDataModel) \
+                .filter_by(id=playlist_id) \
+                .delete()
+
+            self.db.session.commit()
+
+        except SQLAlchemyError as e:
+            self.db.session.rollback()
+            self.logger.error(f"failed to delete playlist: {e}")
+            raise e
+
+        finally:
+            self.db.session.close()

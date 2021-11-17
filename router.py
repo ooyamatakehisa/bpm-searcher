@@ -64,6 +64,11 @@ class Router:
             methods=["PUT"],
         )
         self.app.add_url_rule(
+            rule=f"{self.url_prefix}/user/<uid>/playlist/<playlist_id>",
+            view_func=self.playlist_controller.delete_playlist,
+            methods=["DELETE"],
+        )
+        self.app.add_url_rule(
             rule=(
                 f"{self.url_prefix}/user/<uid>/playlist/<playlist_id>"
                 "/track/<playlist_track_id>"
