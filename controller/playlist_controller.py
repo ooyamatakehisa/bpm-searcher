@@ -150,6 +150,30 @@ class PlaylistController:
 
         return make_response("update playlist", 200)
 
+    def delete_playlist(self, uid: str, playlist_id: str) -> Response:
+        headers = request.headers
+        bearer = headers.get("Authorization")
+        if bearer is None:
+            return make_response("no id token is specified", 401)
+
+        bearer = bearer.split()
+        if len(bearer) != 2:
+            return make_response("beaer header is invalid format", 401)
+
+        id_token = bearer[1]
+        user = self.auth_usecase.verify_user(id_token)
+        if user is None:
+            return make_response("invalid id token", 401)
+
+        if user["uid"] != uid:
+            return make_response("uid in path param is incorrect", 403)
+
+        playlist_info = self.playlist_usecase.delete_playlist(playlist_id)
+        if playlist_info is None:
+            return make_response("playlist with the specified id does not exist", 404)
+
+        return make_response("delete playlist", 204)
+
     def delete_track(
         self,
         uid: str,

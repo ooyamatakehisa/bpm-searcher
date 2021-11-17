@@ -58,6 +58,21 @@ class TestPlaylistInteractor(unittest.TestCase):
         self.assertIsInstance(playlist_infos, list)
         self.assertIsInstance(playlist_infos[0], PlaylistInfo)
 
+    def test_delete_playlist1(self) -> None:
+        expected_playlist_info = mock.create_autospec(PlaylistInfo, instance=True)
+        self.playlist_interactor.playlist_repository.get_playlist_info \
+            .return_value = expected_playlist_info
+
+        actual_playlist_info = self.playlist_interactor.delete_playlist("playlist_id")
+        self.assertEqual(actual_playlist_info, expected_playlist_info)
+
+    def test_delete_playlist2(self) -> None:
+        self.playlist_interactor.playlist_repository.get_playlist_info \
+            .return_value = None
+
+        actual_playlist_info = self.playlist_interactor.delete_playlist("playlist_id")
+        self.assertEqual(actual_playlist_info, None)
+
     def test_delete_track1(self) -> None:
         """Testcase where specified playlist and playlist track exists
         """

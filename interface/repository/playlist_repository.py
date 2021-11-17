@@ -87,3 +87,12 @@ class PlaylistRepository(metaclass=ABCMeta):
             playlist_info (PlaylistInfo): PlaylistInfo object
         """
         pass
+
+    @abstractmethod
+    def delete_playlist(self, playlist_id: str) -> None:
+        """Delete the playlist with the specified playlist_id
+
+        Args:
+            playlist_id (str): playlist id
+        """
+        pass

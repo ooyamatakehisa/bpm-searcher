@@ -44,6 +44,14 @@ class PlaylistInteractor(PlaylistUsecase):
     def get_playlist(self, plyalist_id: str) -> Optional[Playlist]:
         return self.playlist_repository.get_playlist(plyalist_id)
 
+    def delete_playlist(self, playlist_id: str) -> Optional[PlaylistInfo]:
+        playlist_info = self.playlist_repository.get_playlist_info(playlist_id)
+        if playlist_info is None:
+            return None
+
+        self.playlist_repository.delete_playlist(playlist_id)
+        return playlist_info
+
     def delete_track(
         self,
         playlist_id: str,

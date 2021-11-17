@@ -196,6 +196,57 @@ class TestTrackRepositoryImpl(MyTest):
         playlist_track = self.playlist_repository.get_playlist_track("id")
         self.assertEqual(playlist_track, None)
 
+    def test_delete_playlist(self) -> None:
+        playlist_id = "playlist_id"
+        playlist_info_data = PlaylistInfoDataModel(
+            id=playlist_id,
+            name="name",
+            desc="desc",
+            image_url="image_url",
+            num_tracks=2,
+            created_at=datetime.utcnow(),
+            updated_at=datetime.utcnow(),
+        )
+        user_playlist_data = UserPlaylistDataModel(
+            playlist_id=playlist_id,
+            uid="uid",
+        )
+        playlist_track_data1 = PlaylistTrackDataModel(
+            id="playlist_track_id1",
+            playlist_id=playlist_id,
+            spotify_id="spotify_id1",
+            order=1,
+            created_at=datetime.utcnow(),
+            updated_at=datetime.utcnow(),
+        )
+        playlist_track_data2 = PlaylistTrackDataModel(
+            id="playlist_track_id2",
+            playlist_id=playlist_id,
+            spotify_id="spotify_id2",
+            order=2,
+            created_at=datetime.utcnow(),
+            updated_at=datetime.utcnow(),
+        )
+        self.db.session.add(playlist_info_data)
+        self.db.session.add(user_playlist_data)
+        self.db.session.add(playlist_track_data1)
+        self.db.session.add(playlist_track_data2)
+        self.db.session.commit()
+
+        self.playlist_repository.delete_playlist(playlist_id)
+        playlist_info_data = self.db.session.query(PlaylistInfoDataModel) \
+            .filter_by(id=playlist_id) \
+            .first()
+        playlist_track_data = self.db.session.query(PlaylistTrackDataModel) \
+            .filter_by(playlist_id=playlist_id) \
+            .first()
+        user_playlist_data = self.db.session.query(UserPlaylistDataModel) \
+            .filter_by(playlist_id=playlist_id) \
+            .first()
+        self.assertEqual(playlist_info_data, None)
+        self.assertEqual(playlist_track_data, None)
+        self.assertEqual(user_playlist_data, None)
+
 
 if __name__ == '__main__':
     unittest.main()
