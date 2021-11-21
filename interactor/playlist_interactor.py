@@ -6,6 +6,7 @@ import uuid
 from injector import inject, singleton
 
 from domain.model.playlist import Playlist, PlaylistInfo
+from domain.model.track import PlaylistTrack
 from interface.repository.playlist_repository import PlaylistRepository
 from interface.repository.track_repository import TrackRepository
 from interface.usecase.playlist_usecase import PlaylistUsecase
@@ -53,9 +54,7 @@ class PlaylistInteractor(PlaylistUsecase):
         return playlist_info
 
     def delete_track(
-        self,
-        playlist_id: str,
-        playlist_track_id: str
+        self, playlist_id: str, playlist_track_id: str
     ) -> Optional[Playlist]:
         playlist = self.playlist_repository.get_playlist(playlist_id)
         if playlist is None:
@@ -115,3 +114,17 @@ class PlaylistInteractor(PlaylistUsecase):
             self.playlist_repository.save_playlist(playlist)
 
             return playlist
+
+    def patch_track_order(
+        self, playlist_id: str, order_from: int, order_to: int
+    ) -> Optional[List[PlaylistTrack]]:
+        playlist = self.playlist_repository.get_playlist(playlist_id)
+        if playlist is None:
+            return None
+
+        playlist = playlist.patch_track_order(order_from, order_to)
+        if playlist is None:
+            return None
+
+        self.playlist_repository.save_playlist(playlist)
+        return playlist.playlist_tracks

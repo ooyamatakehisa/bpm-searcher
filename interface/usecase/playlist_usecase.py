@@ -2,6 +2,7 @@ from abc import ABCMeta, abstractmethod
 from typing import List, Optional, Union
 
 from domain.model.playlist import Playlist, PlaylistInfo
+from domain.model.track import PlaylistTrack
 
 
 class PlaylistUsecase(metaclass=ABCMeta):
@@ -93,5 +94,25 @@ class PlaylistUsecase(metaclass=ABCMeta):
 
         Returns:
             Optional[PlaylistInfo]: Playlist object if it exists, else None.
+        """
+        pass
+
+    @abstractmethod
+    def patch_track_order(
+        self,
+        playlist_id: str,
+        order_from: int,
+        order_to: int
+    ) -> Optional[List[PlaylistTrack]]:
+        """Change the order of the tracks in the specified playlist.
+
+        Args:
+            playlist_id (str): playlist id
+            order_from (int): the order from which oder is changed
+            order_to (int): the order to which oder is changed
+
+        Returns:
+            Optional[List[PlaylistTrack]]:
+                PlaylistInfo object and list of PlyalistTrack object if it exists.
         """
         pass

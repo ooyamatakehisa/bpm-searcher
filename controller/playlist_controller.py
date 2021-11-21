@@ -202,3 +202,43 @@ class PlaylistController:
             return make_response("specified track or playlist does not exist", 404)
 
         return make_response("delete playlist", 204)
+
+    def patch_track_order(
+        self,
+        uid: str,
+        playlist_id: str,
+    ) -> Response:
+        headers = request.headers
+        bearer = headers.get("Authorization")
+        if bearer is None:
+            return make_response("no id token is specified", 401)
+
+        bearer = bearer.split()
+        if len(bearer) != 2:
+            return make_response("beaer header is invalid format", 401)
+
+        id_token = bearer[1]
+        user = self.auth_usecase.verify_user(id_token)
+        if user is None:
+            return make_response("invalid id token", 401)
+
+        if user["uid"] != uid:
+            return make_response("uid in path param is incorrect", 403)
+
+        body = request.get_json()
+        if body is None:
+            return make_response("content type must be application/json", 400)
+
+        if "orderFrom" not in body or "orderTo" not in body:
+            return make_response("'orderFrom' and 'orderTo' key must be specified", 400)
+
+        playlist_tracks = self.playlist_usecase.patch_track_order(
+            playlist_id, int(body["orderFrom"]), int(body["orderTo"])
+        )
+        if playlist_tracks is None:
+            return make_response(
+                "the specified playlist does not exist or invalid order is specified",
+                404,
+            )
+
+        return jsonify(playlist_tracks)

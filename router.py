@@ -76,6 +76,13 @@ class Router:
             view_func=self.playlist_controller.delete_track,
             methods=["DELETE"],
         )
+        self.app.add_url_rule(
+            rule=(
+                f"{self.url_prefix}/user/<uid>/playlist/<playlist_id>/track"
+            ),
+            view_func=self.playlist_controller.patch_track_order,
+            methods=["PATCH"],
+        )
 
         @self.app.errorhandler(404)
         def catch_all(path):
