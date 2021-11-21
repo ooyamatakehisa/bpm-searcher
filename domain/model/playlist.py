@@ -1,7 +1,7 @@
 from __future__ import annotations
 from dataclasses import dataclass
 from datetime import datetime
-from typing import List
+from typing import List, Optional
 import uuid
 
 from domain.model.track import PlaylistTrack, Track
@@ -98,6 +98,72 @@ class Playlist:
             image_url=playlist_tracks[0].track.image_url,
             num_tracks=self.playlist_info.num_tracks + 1,
             created_at=self.playlist_info.created_at,
-            updated_at=playlist_track.updated_at,
+            updated_at=datetime.utcnow(),
         )
         return Playlist(playlist_info=playlist_info, playlist_tracks=playlist_tracks)
+
+    def patch_track_order(self, order_from: int, order_to: int) -> Optional[Playlist]:
+        """Change the order of a specific track
+
+        Args:
+            order_from (int): the order from which oder is changed (1 origin)
+            order_to (int): the order to which oder is changed (1 origin)
+
+        Returns:
+            Optional[Playlist]: Playlist object if the specified order is valid
+                else None.
+        """
+        num_tracks = self.playlist_info.num_tracks
+        if (
+            order_from < 1
+            or order_from > num_tracks
+            or order_to < 1
+            or order_to > num_tracks
+        ):
+            return None
+
+        if order_from == order_to:
+            return self
+
+        playlist_tracks = []
+        for playlist_track in self.playlist_tracks:
+            order = playlist_track.order
+            if order_from < order and order <= order_to:
+                new_order = playlist_track.order - 1
+                updated_at = datetime.utcnow()
+            elif order_to <= order and order < order_from:
+                new_order = playlist_track.order + 1
+                updated_at = datetime.utcnow()
+            elif order == order_from:
+                new_order = order_to
+                updated_at = datetime.utcnow()
+            else:
+                new_order = playlist_track.order
+                updated_at = playlist_track.updated_at
+
+            playlist_tracks.append(
+                PlaylistTrack(
+                    id=playlist_track.id,
+                    order=new_order,
+                    track=playlist_track.track,
+                    created_at=playlist_track.created_at,
+                    updated_at=updated_at,
+                )
+            )
+        playlist_tracks = sorted(playlist_tracks, key=lambda e: e.order)
+
+        playlist_info = PlaylistInfo(
+            id=self.playlist_info.id,
+            uid=self.playlist_info.uid,
+            name=self.playlist_info.name,
+            desc=self.playlist_info.desc,
+            image_url=playlist_tracks[0].track.image_url,
+            num_tracks=self.playlist_info.num_tracks,
+            created_at=self.playlist_info.created_at,
+            updated_at=datetime.utcnow(),
+        )
+
+        return Playlist(
+            playlist_info=playlist_info,
+            playlist_tracks=playlist_tracks
+        )
