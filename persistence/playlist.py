@@ -121,7 +121,6 @@ class PlaylistRepositoryImpl(PlaylistRepository):
 
         finally:
             self.db.session.close()
-        pass
 
     def get_playlist_tracks(self, playlist_id: str) -> List[PlaylistTrack]:
         try:

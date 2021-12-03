@@ -42,23 +42,41 @@ class PlaylistInteractor(PlaylistUsecase):
     def get_playlist_infos(self, uid: str) -> List[PlaylistInfo]:
         return self.playlist_repository.get_playlist_infos(uid)
 
-    def get_playlist(self, plyalist_id: str) -> Optional[Playlist]:
-        return self.playlist_repository.get_playlist(plyalist_id)
+    def get_playlist(self, plyalist_id: str, uid: str) -> Optional[Playlist]:
+        playlist = self.playlist_repository.get_playlist(plyalist_id)
+        if playlist is None:
+            self.logger.info("no playlist with the playlist_id")
+            return None
 
-    def delete_playlist(self, playlist_id: str) -> Optional[PlaylistInfo]:
+        if playlist.playlist_info.uid != uid:
+            self.logger.info("specified playlist is not created by the user")
+            return None
+
+        return playlist
+
+    def delete_playlist(self, playlist_id: str, uid: str) -> Optional[PlaylistInfo]:
         playlist_info = self.playlist_repository.get_playlist_info(playlist_id)
         if playlist_info is None:
+            self.logger.info("no playlist with the playlist_id")
+            return None
+
+        if playlist_info.uid != uid:
+            self.logger.info("specified playlist is not created by the user")
             return None
 
         self.playlist_repository.delete_playlist(playlist_id)
         return playlist_info
 
     def delete_track(
-        self, playlist_id: str, playlist_track_id: str
+        self, playlist_id: str, playlist_track_id: str, uid: str
     ) -> Optional[Playlist]:
         playlist = self.playlist_repository.get_playlist(playlist_id)
         if playlist is None:
             self.logger.info("no playlist with the playlist_id")
+            return None
+
+        if playlist.playlist_info.uid != uid:
+            self.logger.info("specified playlist is not created by the user")
             return None
 
         playlist_track = self.playlist_repository.get_playlist_track(playlist_track_id)
@@ -75,6 +93,7 @@ class PlaylistInteractor(PlaylistUsecase):
         self,
         kind: str,
         playlist_id: str,
+        uid: str,
         name: str = None,
         desc: str = None,
         spotify_id: str = None,
@@ -83,6 +102,10 @@ class PlaylistInteractor(PlaylistUsecase):
             playlist_info = self.playlist_repository.get_playlist_info(playlist_id)
             if playlist_info is None:
                 self.logger.info("no playlist_info with the playlist id")
+                return None
+
+            if playlist_info.uid != uid:
+                self.logger.info("specified playlist is not created by the user")
                 return None
 
             playlist_info = PlaylistInfo(
@@ -105,6 +128,10 @@ class PlaylistInteractor(PlaylistUsecase):
                 self.logger.info("no playlist with the playlist id")
                 return None
 
+            if playlist.playlist_info.uid != uid:
+                self.logger.info("specified playlist is not created by the user")
+                return None
+
             track = self.track_repository.get_track_by_id(spotify_id)
             if track is None:
                 self.logger.info("no track with the spotify id")
@@ -116,14 +143,20 @@ class PlaylistInteractor(PlaylistUsecase):
             return playlist
 
     def patch_track_order(
-        self, playlist_id: str, order_from: int, order_to: int
+        self, playlist_id: str, order_from: int, order_to: int, uid: str
     ) -> Optional[List[PlaylistTrack]]:
         playlist = self.playlist_repository.get_playlist(playlist_id)
         if playlist is None:
+            self.logger.info("no playlist with the playlist id")
+            return None
+
+        if playlist.playlist_info.uid != uid:
+            self.logger.info("specified playlist is not created by the user")
             return None
 
         playlist = playlist.patch_track_order(order_from, order_to)
         if playlist is None:
+            self.logger.info("specified order is invalid")
             return None
 
         self.playlist_repository.save_playlist(playlist)

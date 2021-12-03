@@ -30,14 +30,16 @@ class PlaylistUsecase(metaclass=ABCMeta):
         pass
 
     @abstractmethod
-    def get_playlist(self, playlist_id: str) -> Optional[Playlist]:
+    def get_playlist(self, playlist_id: str, uid: str) -> Optional[Playlist]:
         """Get Playlist object with the playlist_id.
 
         Args:
             playlist_id (str): playlist id
+            uid (str): user id
 
         Returns:
-            Optional[Playlist]: Playlist object if it exists, else None.
+            Optional[Playlist]: Playlist object if it exists and the playlist is created
+                by the user with the specified uid, else None.
         """
         pass
 
@@ -45,16 +47,19 @@ class PlaylistUsecase(metaclass=ABCMeta):
     def delete_track(
         self,
         playlist_id: str,
-        playlist_track_id: str
+        playlist_track_id: str,
+        uid: str,
     ) -> Optional[Playlist]:
         """Delete track from specified playlist
 
         Args:
             playlist_id (str): playlist id
             playlist_track_id (str): playlist track id
+            uid (str): user id
 
         Returns:
-            Optional[Playlist]: Playlist object if it exists, else None.
+            Optional[Playlist]: Playlist object if it exists and the playlist is created
+                by the user with the specified uid, else None.
         """
         pass
 
@@ -63,6 +68,7 @@ class PlaylistUsecase(metaclass=ABCMeta):
         self,
         kind: str,
         playlist_id: str,
+        uid: str,
         name: str = None,
         desc: str = None,
         spotify_id: str = None,
@@ -72,6 +78,7 @@ class PlaylistUsecase(metaclass=ABCMeta):
         Args:
             kind (str): "track" or "info"
             playlist_id (str): playlist id
+            uid (str): user id
             name (str, optional): playlist name. if "info" is set to "kind", this value
                 must be specified. Defaults to None.
             desc (str, optional): playlist description. if "info" is set to "kind",
@@ -81,19 +88,22 @@ class PlaylistUsecase(metaclass=ABCMeta):
 
         Returns:
             Optional[Union[Playlist, PlaylistInfo]]: Playlist or PlaylistInfo object
-                if it exists, else None.
+                if it exists and the playlist is created by the user with the specified
+                uid, else None.
         """
         pass
 
     @abstractmethod
-    def delete_playlist(self, playlist_id: str) -> Optional[PlaylistInfo]:
+    def delete_playlist(self, playlist_id: str, uid: str) -> Optional[PlaylistInfo]:
         """Delete the playlist with the specified playlist_id
 
         Args:
             playlist_id (str): playlist id
+            uid (str): user id
 
         Returns:
-            Optional[PlaylistInfo]: Playlist object if it exists, else None.
+            Optional[PlaylistInfo]: Playlist object if it exists and the playlist is
+                created by the user with the specified uid, else None.
         """
         pass
 
@@ -102,7 +112,8 @@ class PlaylistUsecase(metaclass=ABCMeta):
         self,
         playlist_id: str,
         order_from: int,
-        order_to: int
+        order_to: int,
+        uid: str,
     ) -> Optional[List[PlaylistTrack]]:
         """Change the order of the tracks in the specified playlist.
 
@@ -110,9 +121,11 @@ class PlaylistUsecase(metaclass=ABCMeta):
             playlist_id (str): playlist id
             order_from (int): the order from which oder is changed
             order_to (int): the order to which oder is changed
+            uid (str): user id
 
         Returns:
-            Optional[List[PlaylistTrack]]:
-                PlaylistInfo object and list of PlyalistTrack object if it exists.
+            Optional[List[PlaylistTrack]]: List of PlyalistTrack objects if it exists,
+                the playlist is created by the user with the specified uid
+                and the spcified order is valid range.
         """
         pass

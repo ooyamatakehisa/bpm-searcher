@@ -66,7 +66,7 @@ class PlaylistController:
         if user["uid"] != uid:
             return make_response("uid in path param is incorrect", 403)
 
-        playlist = self.playlist_usecase.get_playlist(playlist_id)
+        playlist = self.playlist_usecase.get_playlist(playlist_id, uid)
         if playlist is None:
             return make_response("playlist with the specified id does not exist", 404)
 
@@ -126,6 +126,7 @@ class PlaylistController:
             playlist_info = self.playlist_usecase.update_playlist(
                 kind=body["kind"],
                 playlist_id=playlist_id,
+                uid=uid,
                 name=body["name"],
                 desc=body["desc"],
             )
@@ -140,6 +141,7 @@ class PlaylistController:
             playlist = self.playlist_usecase.update_playlist(
                 kind=body["kind"],
                 playlist_id=playlist_id,
+                uid=uid,
                 spotify_id=body["spotify_id"],
             )
             if playlist is None:
@@ -168,7 +170,7 @@ class PlaylistController:
         if user["uid"] != uid:
             return make_response("uid in path param is incorrect", 403)
 
-        playlist_info = self.playlist_usecase.delete_playlist(playlist_id)
+        playlist_info = self.playlist_usecase.delete_playlist(playlist_id, uid)
         if playlist_info is None:
             return make_response("playlist with the specified id does not exist", 404)
 
@@ -197,7 +199,9 @@ class PlaylistController:
         if user["uid"] != uid:
             return make_response("uid in path param is incorrect", 403)
 
-        playlist = self.playlist_usecase.delete_track(playlist_id, playlist_track_id)
+        playlist = self.playlist_usecase.delete_track(
+            playlist_id, playlist_track_id, uid
+        )
         if playlist is None:
             return make_response("specified track or playlist does not exist", 404)
 
@@ -233,7 +237,7 @@ class PlaylistController:
             return make_response("'orderFrom' and 'orderTo' key must be specified", 400)
 
         playlist_tracks = self.playlist_usecase.patch_track_order(
-            playlist_id, int(body["orderFrom"]), int(body["orderTo"])
+            playlist_id, int(body["orderFrom"]), int(body["orderTo"]), uid
         )
         if playlist_tracks is None:
             return make_response(
