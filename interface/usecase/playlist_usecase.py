@@ -1,5 +1,5 @@
 from abc import ABCMeta, abstractmethod
-from typing import List, Optional, Union
+from typing import List, Optional
 
 from domain.model.playlist import Playlist, PlaylistInfo
 from domain.model.track import PlaylistTrack
@@ -64,30 +64,46 @@ class PlaylistUsecase(metaclass=ABCMeta):
         pass
 
     @abstractmethod
-    def update_playlist(
-        self,
-        kind: str,
+    def patch_playlist_info(
         playlist_id: str,
         uid: str,
-        name: str = None,
-        desc: str = None,
-        spotify_id: str = None,
-    ) -> Optional[Union[Playlist, PlaylistInfo]]:
-        """Update playlist info or tracks of the playlist with the specified playlist_id
+        name: str,
+        desc: str,
+    ) -> Optional[PlaylistInfo]:
+        """Update playlist info of the playlist with the specified playlist_id
 
         Args:
-            kind (str): "track" or "info"
             playlist_id (str): playlist id
             uid (str): user id
-            name (str, optional): playlist name. if "info" is set to "kind", this value
+            name (str): playlist name. if "info" is set to "kind", this value
                 must be specified. Defaults to None.
-            desc (str, optional): playlist description. if "info" is set to "kind",
-                this value must be specified. Defaults to None.
-            spotify_id (str, optional): spotify id. if "track" is set to "kind",
+            desc (str): playlist description. if "info" is set to "kind",
                 this value must be specified. Defaults to None.
 
         Returns:
-            Optional[Union[Playlist, PlaylistInfo]]: Playlist or PlaylistInfo object
+            Optional[PlaylistInfo]: PlaylistInfo object
+                if it exists and the playlist is created by the user with the specified
+                uid, else None.
+        """
+        pass
+
+    @abstractmethod
+    def update_playlist(
+        self,
+        playlist_id: str,
+        uid: str,
+        spotify_id: str,
+    ) -> Optional[Playlist]:
+        """Update playlist tracks of the playlist with the specified playlist_id
+
+        Args:
+            playlist_id (str): playlist id
+            uid (str): user id
+            spotify_id (str): spotify id. if "track" is set to "kind",
+                this value must be specified. Defaults to None.
+
+        Returns:
+            Optional[Playlist]: Playlist object
                 if it exists and the playlist is created by the user with the specified
                 uid, else None.
         """
