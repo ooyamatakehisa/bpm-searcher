@@ -94,6 +94,42 @@ class PlaylistController:
         plyalist_infos = [asdict(playlist_info) for playlist_info in playlist_infos]
         return jsonify(plyalist_infos)
 
+    def patch_playlist_info(self, uid: str, playlist_id: str) -> Response:
+        headers = request.headers
+        bearer = headers.get("Authorization")
+        if bearer is None:
+            return make_response("no id token is specified", 401)
+
+        bearer = bearer.split()
+        if len(bearer) != 2:
+            return make_response("beaer header is invalid format", 401)
+
+        id_token = bearer[1]
+        user = self.auth_usecase.verify_user(id_token)
+        if user is None:
+            return make_response("invalid id token", 401)
+
+        if user["uid"] != uid:
+            return make_response("uid in path param is incorrect", 403)
+
+        body = request.get_json()
+        if body is None:
+            return make_response("content type must be application/json", 400)
+
+        if "name" not in body or "desc" not in body:
+            return make_response("'name' and 'desc' key must be specified", 400)
+
+        playlist_info = self.playlist_usecase.patch_playlist_info(
+            playlist_id=playlist_id,
+            uid=uid,
+            name=body["name"],
+            desc=body["desc"],
+        )
+        if playlist_info is None:
+            return make_response("playlist does not exist", 404)
+
+        return jsonify(asdict(playlist_info))
+
     def update_playlist(self, uid: str, playlist_id: str) -> Response:
         headers = request.headers
         bearer = headers.get("Authorization")
@@ -116,41 +152,19 @@ class PlaylistController:
         if body is None:
             return make_response("content type must be application/json", 400)
 
-        if "kind" not in body:
-            return make_response("'kind' key must be specified", 400)
+        if "spotify_id" not in body:
+            message = "'spotify_id' key must be specified"
+            return make_response(message, 400)
 
-        if body["kind"] == "info":
-            if not all([e in body for e in ["name", "desc"]]):
-                return make_response("'name' and 'desc' key must be specified", 400)
+        playlist = self.playlist_usecase.update_playlist(
+            playlist_id=playlist_id,
+            uid=uid,
+            spotify_id=body["spotify_id"],
+        )
+        if playlist is None:
+            return make_response("playlist does not exist", 404)
 
-            playlist_info = self.playlist_usecase.update_playlist(
-                kind=body["kind"],
-                playlist_id=playlist_id,
-                uid=uid,
-                name=body["name"],
-                desc=body["desc"],
-            )
-            if playlist_info is None:
-                return make_response("playlist does not exist", 404)
-
-        elif body["kind"] == "track":
-            if "spotify_id" not in body:
-                message = "'spotify_id' key must be specified"
-                return make_response(message, 400)
-
-            playlist = self.playlist_usecase.update_playlist(
-                kind=body["kind"],
-                playlist_id=playlist_id,
-                uid=uid,
-                spotify_id=body["spotify_id"],
-            )
-            if playlist is None:
-                return make_response("playlist does not exist", 404)
-
-        else:
-            return make_response("'kind' key must be either 'info' or 'track'", 400)
-
-        return make_response("update playlist", 200)
+        return jsonify(asdict(playlist))
 
     def delete_playlist(self, uid: str, playlist_id: str) -> Response:
         headers = request.headers

@@ -221,8 +221,8 @@ class TestPlaylistInteractor(unittest.TestCase):
         )
         self.assertEqual(actual_playlist, None)
 
-    def test_update_playlist1(self) -> None:
-        """Testcase where kind is "info" and specified playlist exists
+    def test_patch_playlist_info1(self) -> None:
+        """Testcase where specified playlist exists
         """
         uid = "uid"
         playlist_info_mock = mock.MagicMock()
@@ -230,8 +230,7 @@ class TestPlaylistInteractor(unittest.TestCase):
         self.playlist_interactor.playlist_repository.get_playlist_info \
             .return_value = playlist_info_mock
 
-        playlist_info = self.playlist_interactor.update_playlist(
-            kind="info",
+        playlist_info = self.playlist_interactor.patch_playlist_info(
             playlist_id="playlist_id",
             uid=uid,
             name="name",
@@ -239,14 +238,13 @@ class TestPlaylistInteractor(unittest.TestCase):
         )
         self.assertIsInstance(playlist_info, PlaylistInfo)
 
-    def test_update_playlist2(self) -> None:
-        """Testcase where kind is "info" and specified playlist does not exists
+    def test_patch_playlist_info2(self) -> None:
+        """Testcase where specified playlist does not exists
         """
         self.playlist_interactor.playlist_repository.get_playlist_info \
             .return_value = None
 
-        playlist_info = self.playlist_interactor.update_playlist(
-            kind="info",
+        playlist_info = self.playlist_interactor.patch_playlist_info(
             playlist_id="playlist_id",
             uid="uid",
             name="name",
@@ -254,8 +252,8 @@ class TestPlaylistInteractor(unittest.TestCase):
         )
         self.assertEqual(playlist_info, None)
 
-    def test_update_playlist3(self) -> None:
-        """Testcase where kind is "track" and specified playlist exists
+    def test_update_playlist1(self) -> None:
+        """Testcase where specified playlist exists
         """
         uid = "uid"
         self.playlist_interactor.playlist_repository.get_playlist \
@@ -288,15 +286,14 @@ class TestPlaylistInteractor(unittest.TestCase):
             )
 
         playlist = self.playlist_interactor.update_playlist(
-            kind="track",
             playlist_id="playlist_id",
             uid=uid,
             spotify_id="spotify_id",
         )
         self.assertIsInstance(playlist, Playlist)
 
-    def test_update_playlist4(self) -> None:
-        """Testcase where kind is "track" and specified playlist does not exist
+    def test_update_playlist2(self) -> None:
+        """Testcase where specified playlist does not exist
         """
         self.playlist_interactor.playlist_repository.get_playlist \
             .return_value = None
@@ -304,15 +301,14 @@ class TestPlaylistInteractor(unittest.TestCase):
             .return_value = mock.create_autospec(Track, instance=True)
 
         playlist = self.playlist_interactor.update_playlist(
-            kind="track",
             playlist_id="playlist_id",
             spotify_id="spotify_id",
             uid="uid",
         )
         self.assertEqual(playlist, None)
 
-    def test_update_playlist5(self) -> None:
-        """Testcase where kind is "track" and specified playlist_track does not exist
+    def test_update_playlist3(self) -> None:
+        """Testcase where specified playlist_track does not exist
         """
         uid = "uid"
         self.playlist_interactor.playlist_repository.get_playlist \
@@ -333,7 +329,6 @@ class TestPlaylistInteractor(unittest.TestCase):
             .return_value = None
 
         playlist = self.playlist_interactor.update_playlist(
-            kind="track",
             playlist_id="playlist_id",
             spotify_id="spotify_id",
             uid=uid,

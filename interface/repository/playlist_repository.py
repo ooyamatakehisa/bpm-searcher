@@ -7,6 +7,18 @@ from domain.model.track import PlaylistTrack
 
 class PlaylistRepository(metaclass=ABCMeta):
     @abstractmethod
+    def get_playlist(playlist_id: str) -> Optional[Playlist]:
+        """Get Playlist object with the playlist_id.
+
+        Args:
+            playlist_id (str): playlist id
+
+        Returns:
+            Optional[Playlist]: Playlist object if it exists, else None.
+        """
+        pass
+
+    @abstractmethod
     def get_playlist_infos(self, uid: str) -> List[PlaylistInfo]:
         """Get list of PlaylistInfo objects of the user with the uid.
         If no playlist exists, return the list with no element.
@@ -16,18 +28,6 @@ class PlaylistRepository(metaclass=ABCMeta):
 
         Returns:
             List[PlaylistInfo]: list of PlaylistInfo objects
-        """
-        pass
-
-    @abstractmethod
-    def get_playlist(playlist_id: str) -> Optional[Playlist]:
-        """Get Playlist object with the playlist_id.
-
-        Args:
-            playlist_id (str): playlist id
-
-        Returns:
-            Optional[Playlist]: Playlist object if it exists, else None.
         """
         pass
 

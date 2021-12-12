@@ -1,6 +1,6 @@
 from datetime import datetime
 from logging import Logger
-from typing import List, Optional, Union
+from typing import List, Optional
 import uuid
 
 from injector import inject, singleton
@@ -89,58 +89,60 @@ class PlaylistInteractor(PlaylistUsecase):
 
         return playlist
 
-    def update_playlist(
+    def patch_playlist_info(
         self,
-        kind: str,
         playlist_id: str,
         uid: str,
-        name: str = None,
-        desc: str = None,
-        spotify_id: str = None,
-    ) -> Optional[Union[Playlist, PlaylistInfo]]:
-        if kind == "info":
-            playlist_info = self.playlist_repository.get_playlist_info(playlist_id)
-            if playlist_info is None:
-                self.logger.info("no playlist_info with the playlist id")
-                return None
+        name: str,
+        desc: str,
+    ) -> Optional[PlaylistInfo]:
+        playlist_info = self.playlist_repository.get_playlist_info(playlist_id)
+        if playlist_info is None:
+            self.logger.info("no playlist_info with the playlist id")
+            return None
 
-            if playlist_info.uid != uid:
-                self.logger.info("specified playlist is not created by the user")
-                return None
+        if playlist_info.uid != uid:
+            self.logger.info("specified playlist is not created by the user")
+            return None
 
-            playlist_info = PlaylistInfo(
-                id=playlist_id,
-                uid=playlist_info.uid,
-                name=name,
-                desc=desc,
-                image_url=playlist_info.image_url,
-                num_tracks=playlist_info.num_tracks,
-                created_at=playlist_info.created_at,
-                updated_at=datetime.utcnow(),
-            )
-            self.playlist_repository.save_playlist_info(playlist_info)
+        playlist_info = PlaylistInfo(
+            id=playlist_id,
+            uid=playlist_info.uid,
+            name=name,
+            desc=desc,
+            image_url=playlist_info.image_url,
+            num_tracks=playlist_info.num_tracks,
+            created_at=playlist_info.created_at,
+            updated_at=datetime.utcnow(),
+        )
+        self.playlist_repository.save_playlist_info(playlist_info)
 
-            return playlist_info
+        return playlist_info
 
-        elif kind == "track":
-            playlist = self.playlist_repository.get_playlist(playlist_id)
-            if playlist is None:
-                self.logger.info("no playlist with the playlist id")
-                return None
+    def update_playlist(
+        self,
+        playlist_id: str,
+        uid: str,
+        spotify_id: str,
+    ) -> Optional[Playlist]:
+        playlist = self.playlist_repository.get_playlist(playlist_id)
+        if playlist is None:
+            self.logger.info("no playlist with the playlist id")
+            return None
 
-            if playlist.playlist_info.uid != uid:
-                self.logger.info("specified playlist is not created by the user")
-                return None
+        if playlist.playlist_info.uid != uid:
+            self.logger.info("specified playlist is not created by the user")
+            return None
 
-            track = self.track_repository.get_track_by_id(spotify_id)
-            if track is None:
-                self.logger.info("no track with the spotify id")
-                return None
+        track = self.track_repository.get_track_by_id(spotify_id)
+        if track is None:
+            self.logger.info("no track with the spotify id")
+            return None
 
-            playlist = playlist.add(track)
-            self.playlist_repository.save_playlist(playlist)
+        playlist = playlist.add(track)
+        self.playlist_repository.save_playlist(playlist)
 
-            return playlist
+        return playlist
 
     def patch_track_order(
         self, playlist_id: str, order_from: int, order_to: int, uid: str
