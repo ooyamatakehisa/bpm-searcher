@@ -12,4 +12,6 @@ class RankingController:
 
     def get_ranking(self) -> Response:
         ranking = self.ranking_usecase.get_ranking()
-        return jsonify(ranking)
+        response = jsonify(ranking)
+        response.cache_control.max_age = 60 * 60  # 1 hour
+        return response
