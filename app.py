@@ -24,23 +24,15 @@ CORS(app)
 
 envs = Envs()
 
-if envs.APP_ENV == "DEV":
-    kwargs = {
-        "url": os.environ.get("REDIS_URL"),
-        "decode_responses": True,
-    }
-elif envs.APP_ENV == "PRD":
+if envs.APP_ENV == "PRD":
     gunicorn_logger = logging.getLogger("gunicorn.error")
     app.logger.handlers = gunicorn_logger.handlers
     app.logger.setLevel(gunicorn_logger.level)
 
-    kwargs = {
-        "url": os.environ.get('REDIS_TLS_URL'),
-        "decode_responses": True,
-        "ssl_cert_reqs": None,
-    }
-
-redis_conn = redis.from_url(**kwargs)
+redis_conn = redis.from_url(
+    url=os.environ.get("REDIS_URL"),
+    decode_responses=True,
+)
 
 cred = firebase_admin.credentials.Certificate({
     "type": "service_account",
