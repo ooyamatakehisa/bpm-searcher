@@ -6,7 +6,7 @@ services:
       context: .
       dockerfile: Dockerfile
     ports:
-      - "8000:8000"
+      - "8080:8080"
     environment:
       TZ: Asia/Tokyo
       MYSQL_USER: ${MYSQL_USER}
@@ -36,7 +36,7 @@ services:
       MYSQL_ROOT_PASSWORD: ${MYSQL_PASSWORD}
       MYSQL_ALLOW_EMPTY_PASSWORD: ${MYSQL_ALLOW_EMPTY_PASSWORD}
       MYSQL_DATABASE: ${MYSQL_DATABASE}
-    
+
   redis:
     image: redis:latest
     ports:
