@@ -2,15 +2,15 @@
 <img width="222" alt="スクリーンショット 2021-09-23 13 50 36" src="https://user-images.githubusercontent.com/44559556/134456107-8949f9e5-e610-4375-b9ba-ca309f879959.png">
 
 # bpm-searcher
-This repository has the code used for [bpm-searcher](https://bpm-searcher.herokuapp.com/).  
-[bpm-searcher](https://bpm-searcher.herokuapp.com/) can search bpm of a given song by querying Spotify API.  
+This repository has the code used for [bpm-searcher](https://bpm-searcher.onrender.com/).
+[bpm-searcher](https://bpm-searcher.onrender.com/) can search bpm of a given song by querying Spotify API.
 
 # Spotify chart API
 This repository also offers simple Spotify chart API which shows the charts in https://spotifycharts.com/regional.
 You can get this chart information in JSON as the following example.
 The first element of the array represents the top of the ranking.
 ```
-GET https://bpm-searcher.herokuapp.com/api/v1/ranking
+GET https://bpm-searcher.onrender.com/api/v1/ranking
 ```
 
 ```json
